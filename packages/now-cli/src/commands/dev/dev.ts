@@ -1,4 +1,5 @@
 import path from 'path';
+import 'dotenv/config';
 
 import DevServer from '../../util/dev/server';
 import parseListen from '../../util/dev/parse-listen';
@@ -22,7 +23,7 @@ export default async function dev(
 ) {
   const [dir = '.'] = args;
   const cwd = path.resolve(dir);
-  const listen = parseListen(opts['--listen'] || '3000');
+  const listen = parseListen(opts['--listen'] || process.env.PORT || '3000');
   const debug = opts['--debug'] || false;
 
   const client = new Client({
