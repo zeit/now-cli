@@ -1207,9 +1207,6 @@ export const build = async ({
       );
     }
 
-    let dynamicPrefix = path.join('/', entryDirectory);
-    dynamicPrefix = dynamicPrefix === '/' ? '' : dynamicPrefix;
-
     dynamicRoutes = await getDynamicRoutes(
       entryPath,
       entryDirectory,
@@ -1217,11 +1214,6 @@ export const build = async ({
       false,
       routesManifest,
       new Set(prerenderManifest.omittedRoutes)
-    ).then((arr) =>
-      arr.map((route) => {
-        route.src = route.src.replace('^', `^${dynamicPrefix}`);
-        return route;
-      })
     );
 
     if (isSharedLambdas) {
@@ -1236,11 +1228,6 @@ export const build = async ({
         dynamicPages,
         false,
         routesManifest
-      ).then((arr) =>
-        arr.map((route) => {
-          route.src = route.src.replace('^', `^${dynamicPrefix}`);
-          return route;
-        })
       );
 
       await Promise.all(
