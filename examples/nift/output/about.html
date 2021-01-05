@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<!--
+	Landed by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Landed by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<link rel="stylesheet" href="assets/css/blog.css" />
+		<link rel="stylesheet" href="assets/css/pre.css" />
+		
+		<!-- uses google-code-prettify for syntax highlighting 
+			 see https://github.com/google/code-prettify for more info -->
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js">
+		</script>
+		
+		<!-- uses MathJax CDC for LaTeX support
+			 see http://docs.mathjax.org/en/latest/start.html for more info -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config
+			({
+				extensions: ["tex2jax.js"],
+				jax: ["input/TeX", "output/HTML-CSS"],
+				tex2jax: 
+				{
+					inlineMath: [['$','$'], ['\\(','\\)']],
+					displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+					processEscapes: true
+				},
+				"HTML-CSS": { availableFonts: ["MathJax TeX"] }
+			});
+		</script>
+		<script type="text/javascript" 
+				src="https://cdn.mathjax.org/mathjax/latest/MathJax.js">
+		</script>
+	</head>
+	<body class="is-preload landing" onload="setup()">
+		<div id="page-wrapper">
+			<!-- Header -->
+				<header id="header">
+					<h1 id="logo"><a href="index.html">Landed</a></h1>
+					<nav id="nav">
+						<ul>
+							<li>
+								<a href="about.html">About</a>
+								<ul>
+									<li>
+										<a href="#">Hobbies</a>
+										<ul>
+											<li><a href="#">Option 1</a></li>
+											<li><a href="#">Option 2</a></li>
+											<li><a href="#">Option 3</a></li>
+											<li><a href="#">Option 4</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#">Work</a>
+										<ul>
+											<li><a href="#">Option 1</a></li>
+											<li><a href="#">Option 2</a></li>
+											<li><a href="#">Option 3</a></li>
+											<li><a href="#">Option 4</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li>
+								<a href="blog.html">Blog</a>
+								<ul>
+									<li><a href="blog/post01.html">Post 1</a></li>
+									<li><a href="blog/post02.html">Post 2</a></li>
+								</ul>
+							</li>
+							<li><a href="faq.html">FAQ</a></li>
+							<li><a href="index.html" class="button primary">Home</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>About</h2>
+						</header>
+			
+						<!-- Text -->
+						<section class="content">
+							<textarea class="markdown">
+								[Nift](https://nift.cc) (aka nsm) is a cross-platform open source git-like and $\LaTeX$-like site manager coded in C++. This is the site for the HTML5 UP nsm blog repository template **landed-blog**.
+			
+								See the [FAQ](faq.html) page for how to import/fork this repository along with answers to other frequently asked questions.
+			
+								To install nsm see the [Nift install](https://nift.cc/documentation/installing_nsm.html) pages. You can learn more about managing sites from the [getting started guide](https://nift.cc/resources/get_started.html), [Nift commands](https://nift.cc/documentation/nsm_commands.html), [content files](https://nift.cc/documentation/content_files.html), [template files](https://nift.cc/documentation/template_files.html) and [Nift tutorial](https://nift.cc/documentation/nsm_tutorial.html) pages from the nsm documentation. The simpler things you may wish to do are below.
+			
+								### How do I add a page to my blog?
+								1. From the terminal navigate your way to the site directory.
+								2. Enter **nsm track page-name (page-title)** where **page-name** is the name of the page file (including any directories) and optionally **page-title** is the title of the page. If you would like the page in a directory use page name **dir-name/page-name**. It can also be convenient to instead copy an existing page using **nsm cp existing-name new-name**.
+			
+								### How do I remove a page from my blog?
+								1. From the terminal navigate your way to the site directory.
+								2. Enter **nsm rm page-name** where **page-name** is the name of the page file (including any directories).
+			
+								### How do I modify a page on my blog?
+								1. Modify the content file **content/page-name.content**.
+								2. From the terminal navigate your way to the site directory.
+								3. To view changes locally enter **nsm build-updated** to build the updated pages, then view the site locally (see the [FAQ](faq.html) page for how).
+								4. To push the changes remotely, enter **nsm bcp "commit message"**. Note **bcp** will build the updated changes locally, commit the changes to your local repository and push the changes to the remote repository, which after a short delay will update your site online.
+							</textarea>
+						</section>
+					</div>
+				</div>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="icons">
+						<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+						<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="#" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+						<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li><li>Site Manager: <a href="https://nift.cc">Nift</a></li>
+					</ul>
+				</footer>
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script src='assets/js/process_md_blocks.js'></script>
+			<script src="assets/js/showdown.min.js"></script>
+			<script>
+				var converter = new showdown.Converter();
+				converter.setOption('tables', 'on');
+				converter.setOption('strikethrough', 'on');
+				converter.setOption('emoji', 'on');
+				elements = document.getElementsByClassName('markdown');
+				for(var i=0; i<elements.length; i++)
+					elements[i].innerHTML = converter.makeHtml(elements[i].innerHTML.replace(/&lt;/g, "xwxw").replace(/&gt;/g, "pqpq")).replace(/xwxw/g, "&lt;").replace(/pqpq/g, "&gt;");
+			</script>
+	</body>
+</html>

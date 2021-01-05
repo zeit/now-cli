@@ -923,6 +923,33 @@
     }
   },
   {
+    "name": "Nift",
+    "slug": "nift",
+    "demo": "https://nift.now-examples.now.sh",
+    "logo": "https://raw.githubusercontent.com/zeit/now/master/packages/frameworks/logos/nift.svg",
+    "tagline": "Nift is the world's fastest framework for managing and generating websites.",
+    "description": "A Nift site, created with the Nift CLI.",
+    "website": "https://nift.dev/",
+    "detectors": {
+      "every": [
+        {
+          "path": ".nsm/nift.config"
+        }
+      ]
+    },
+    "settings": {
+      "buildCommand": {
+        "placeholder": "`nift build-all` or `nsm build-all`"
+      },
+      "devCommand": {
+        "placeholder": "nift serve"
+      },
+      "outputDirectory": {
+        "placeholder": "output"
+      }
+    }
+  },
+  {
     "name": "Other",
     "slug": null,
     "logo": "https://raw.githubusercontent.com/vercel/vercel/master/packages/frameworks/logos/other.svg",

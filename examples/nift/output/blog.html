@@ -1,0 +1,337 @@
+<!DOCTYPE HTML>
+<!--
+	Landed by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Landed by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<link rel="stylesheet" href="assets/css/blog.css" />
+		<link rel="stylesheet" href="assets/css/pre.css" />
+		
+		<!-- uses google-code-prettify for syntax highlighting 
+			 see https://github.com/google/code-prettify for more info -->
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js">
+		</script>
+		
+		<!-- uses MathJax CDC for LaTeX support
+			 see http://docs.mathjax.org/en/latest/start.html for more info -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config
+			({
+				extensions: ["tex2jax.js"],
+				jax: ["input/TeX", "output/HTML-CSS"],
+				tex2jax: 
+				{
+					inlineMath: [['$','$'], ['\\(','\\)']],
+					displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+					processEscapes: true
+				},
+				"HTML-CSS": { availableFonts: ["MathJax TeX"] }
+			});
+		</script>
+		<script type="text/javascript" 
+				src="https://cdn.mathjax.org/mathjax/latest/MathJax.js">
+		</script>
+	</head>
+	<body class="is-preload landing" onload="setup()">
+		<div id="page-wrapper">
+			<!-- Header -->
+				<header id="header">
+					<h1 id="logo"><a href="index.html">Landed</a></h1>
+					<nav id="nav">
+						<ul>
+							<li>
+								<a href="about.html">About</a>
+								<ul>
+									<li>
+										<a href="#">Hobbies</a>
+										<ul>
+											<li><a href="#">Option 1</a></li>
+											<li><a href="#">Option 2</a></li>
+											<li><a href="#">Option 3</a></li>
+											<li><a href="#">Option 4</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#">Work</a>
+										<ul>
+											<li><a href="#">Option 1</a></li>
+											<li><a href="#">Option 2</a></li>
+											<li><a href="#">Option 3</a></li>
+											<li><a href="#">Option 4</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li>
+								<a href="blog.html">Blog</a>
+								<ul>
+									<li><a href="blog/post01.html">Post 1</a></li>
+									<li><a href="blog/post02.html">Post 2</a></li>
+								</ul>
+							</li>
+							<li><a href="faq.html">FAQ</a></li>
+							<li><a href="index.html" class="button primary">Home</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>Blog</h2>
+						</header>
+			
+						<!-- Text -->
+						<section class="content">
+							<center><h2>Contents</h2></center>
+			
+							<center>
+								<div class="xscroll">
+									<table style="margin-bottom:0px">
+										<thead>
+											<tr>
+												<th style="text-align: left !important">Posts per page</th>
+												<th style="text-align: left !important">Page</th>
+											</tr>
+										</thead>
+										<tfoot>
+											<tr>
+												<th>
+													<select id="posts_per_page_select", name="values", value="200", width="300px">
+														<option selected="selected">10</option>
+														<option>25</option>
+														<option>50</option>
+														<option>100</option>
+													</select> &nbsp;&nbsp;
+												</th>
+												<th>
+													<input id="page_tb" type="text" value="1" style="width:50px"> &nbsp;&nbsp;
+												</th>
+											</tr>
+										</tfoot>
+									</table>
+								</div>
+			
+								<noselect>
+									<div class="xscroll" style="margin-bottom: 10px; margin-top:-10px">
+										<pagebutton onclick="first_page()" title="f key">first</pagebutton> &nbsp;
+										<pagebutton onclick="prev_page()" title="left arrow key">prev</pagebutton> &nbsp;
+										<pagebutton onclick="next_page()" title="right arrow key">next</pagebutton> &nbsp;
+										<pagebutton onclick="last_page()" title="l key">last</pagebutton>
+									</div>
+								</noselect>
+							</center>
+			
+							<div class="xscroll">
+								<table id="posts_table">
+									<thead>
+										<tr>
+											<th>Date</th>
+											<th>Title</th>
+										</tr>
+									</thead>
+									<tfoot>
+										<tr>
+											<th>Date</th>
+											<th>Title</th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+			
+							<center>
+								<noselect>
+									<div class="xscroll">
+										<pagebutton onclick="first_page()" title="f key">first</pagebutton> &nbsp;
+										<pagebutton onclick="prev_page()" title="left arrow key">prev</pagebutton> &nbsp;
+										<pagebutton onclick="next_page()" title="right arrow key">next</pagebutton> &nbsp;
+										<pagebutton onclick="last_page()" title="l key">last</pagebutton>
+									</div>
+								</noselect>
+							</center>
+			
+							<noselect><br><br></noselect>
+						</section>
+					</div>
+				</div>
+			
+			<script>
+				var posts_array = [
+					["14/05/2019", "post 2", "blog/post02.html", "A project I recently finished"],
+					["03/02/2019", "post 1", "blog/post01.html", "My first blog post"],
+				];
+				var posts_per_page,
+					total_no_pages,
+					no_posts_on_page,
+					current_page;
+			
+				window.addEventListener('keydown',this.keydown,false);
+			
+				function setup()
+				{
+					posts_per_page = 10;
+					total_no_pages = Math.ceil(posts_array.length/posts_per_page);
+					no_posts_on_page = -1;
+					current_page = 0;
+			
+					document.getElementById("posts_per_page_select").value = "10";
+					document.getElementById("page_tb").value = current_page+1;
+					document.getElementById("page_tb").title = "max page " + total_no_pages;
+			
+					clear_page();
+					draw_page();
+				}
+			
+				function keydown(e)
+				{
+					var code = e.keyCode;
+					
+					if(document.activeElement.tagName != "INPUT")
+					{
+						switch (code) 
+						{
+							
+							case 37: prev_page(); break; //Left key
+							case 39: next_page(); break; //Right key
+							case 70: first_page(); break; //'f' key
+							case 76: last_page(); break; //'l' key
+						}
+					}
+					else if(code == 13)
+					{
+						document.getElementById("page_tb").blur();
+					}
+				}
+			
+				document.getElementById("posts_per_page_select").onchange = function()
+				{
+					posts_per_page = this.value;
+					current_page = 0;
+					total_no_pages = Math.ceil(posts_array.length/posts_per_page);
+					document.getElementById("page_tb").title = "max page " + total_no_pages;
+					clear_page();
+					draw_page();
+					this.blur();
+				}
+			
+				function first_page()
+				{
+					if(current_page > 0)
+					{
+						clear_page();
+						current_page = 0;
+						document.getElementById("page_tb").value = current_page;
+						draw_page();
+					}
+				}
+			
+				function prev_page()
+				{
+					if(current_page > 0)
+					{
+						clear_page();
+						current_page--;
+						document.getElementById("page_tb").value = current_page;
+						draw_page();
+					}
+				}
+			
+				function next_page()
+				{
+					if(current_page+1 < total_no_pages)
+					{
+						clear_page();
+						current_page++;
+						document.getElementById("page_tb").value = current_page;
+						draw_page();
+					}
+				}
+			
+				function last_page()
+				{
+					if(current_page+1 < total_no_pages)
+					{
+						clear_page();
+						current_page = total_no_pages-1;
+						document.getElementById("page_tb").value = current_page;
+						draw_page();
+					}
+				}
+			
+				function clear_page()
+				{
+					var table = document.getElementById("posts_table");
+			
+					var no_rows = table.rows.length-2;
+					for(var i=0; i < no_rows; i++)
+						table.deleteRow(1);		
+				}
+			
+				function draw_page()
+				{
+					var table = document.getElementById("posts_table");
+			
+					document.getElementById("page_tb").value = current_page+1;
+					no_posts_on_page = posts_array.length - current_page*posts_per_page;
+					if(current_page+1 < total_no_pages)
+						no_posts_on_page = posts_per_page;
+				
+					var pmax = posts_array.length;
+					if(current_page+1 < total_no_pages)
+						pmax = (current_page+1)*posts_per_page; 
+			
+					for(var p=current_page*posts_per_page, i=1; p<pmax; p++, i++)
+					{
+						var row = table.insertRow(i);
+						row.insertCell(0).innerHTML = posts_array[p][0];
+						row.insertCell(1).innerHTML = "<a href='" + posts_array[p][2] + "'>" + posts_array[p][1] + "</a>: " + posts_array[p][3];
+					}
+				}
+			</script>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="icons">
+						<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+						<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="#" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+						<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li><li>Site Manager: <a href="https://nift.cc">Nift</a></li>
+					</ul>
+				</footer>
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script src='assets/js/process_md_blocks.js'></script>
+			<script src="assets/js/showdown.min.js"></script>
+			<script>
+				var converter = new showdown.Converter();
+				converter.setOption('tables', 'on');
+				converter.setOption('strikethrough', 'on');
+				converter.setOption('emoji', 'on');
+				elements = document.getElementsByClassName('markdown');
+				for(var i=0; i<elements.length; i++)
+					elements[i].innerHTML = converter.makeHtml(elements[i].innerHTML.replace(/&lt;/g, "xwxw").replace(/&gt;/g, "pqpq")).replace(/xwxw/g, "&lt;").replace(/pqpq/g, "&gt;");
+			</script>
+	</body>
+</html>

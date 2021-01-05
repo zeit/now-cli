@@ -1,0 +1,40 @@
+<!-- Header -->
+	<header id="header">
+		<h1 id="logo"><a href="@pathto(index)">Landed</a></h1>
+		<nav id="nav">
+			<ul>
+				<li>
+					<a href="@pathto(about)">About</a>
+					<ul>
+						<li>
+							<a href="#">Hobbies</a>
+							<ul>
+								<li><a href="#">Option 1</a></li>
+								<li><a href="#">Option 2</a></li>
+								<li><a href="#">Option 3</a></li>
+								<li><a href="#">Option 4</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#">Work</a>
+							<ul>
+								<li><a href="#">Option 1</a></li>
+								<li><a href="#">Option 2</a></li>
+								<li><a href="#">Option 3</a></li>
+								<li><a href="#">Option 4</a></li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="@pathto(blog)">Blog</a>
+					<ul>
+						<li><a href="@pathto(blog/post01)">Post 1</a></li>
+						<li><a href="@pathto(blog/post02)">Post 2</a></li>
+					</ul>
+				</li>
+				<li><a href="@pathto(faq)">FAQ</a></li>
+				<li><a href="index.html" class="button primary">Home</a></li>
+			</ul>
+		</nav>
+	</header>

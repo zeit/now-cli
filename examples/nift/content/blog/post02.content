@@ -1,0 +1,15 @@
+<!-- Main -->
+	<div id="main" class="wrapper style1">
+		<div class="container">
+			<header class="major">
+				<h2>A project I recently finished</h2>
+			</header>
+
+			<!-- Text -->
+			<section class="content">
+				<textarea class="markdown">
+					Markdown content goes here, you could put it in a new markdown file *blog/post02.md* if you wanted and then have \@input(blog/post02.md). Or you could move the \<textarea\> tags in to the page template **template/page.template** and set the default extension in *.siteinfo/nsm.config* to **.md**. You may also like to play with the css for headers to have them automatically centre, that way your Markdown headers will be centred.
+				</textarea>
+			</section>
+		</div>
+	</div>

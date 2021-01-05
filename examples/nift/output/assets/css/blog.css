@@ -1,0 +1,34 @@
+thead
+{
+	border-bottom: 0px solid #ddd !important;
+}
+
+div.xscroll
+{
+	margin: 0 auto;
+	display: block;
+	max-width: 95%;
+	overflow-x: auto;
+}
+
+pagebutton
+{
+	display: inline;
+	overflow-x: scroll;
+	cursor: pointer;
+
+	background: rgba(255, 255, 255, 0.025);
+	border-radius: 5px;
+	border: solid 2px rgba(255, 255, 255, 0.125);
+	font-family: "Courier New", monospace;
+	font-size: 1em;
+	margin: 0.25 0.25em;
+	padding: 0.7em 0.65em;
+	line-height: 3;	
+}
+
+pagebutton:hover
+{
+	color: #a19e97;
+	cursor: pointer;
+}

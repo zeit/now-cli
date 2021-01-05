@@ -597,6 +597,13 @@ const frameworkList: Framework[] = [
     getOutputDirName: async () => 'build',
   },
   {
+    name: 'Nift',
+    slug: 'nift',
+    buildCommand: 'nift build-all',
+    getOutputDirName: async () => 'output',
+    cachePattern: '{.nsm,output-incr}/**',
+  },
+  {
     name: 'Zola',
     slug: 'zola',
     buildCommand: 'zola build',

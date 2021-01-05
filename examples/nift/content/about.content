@@ -1,0 +1,33 @@
+<!-- Main -->
+	<div id="main" class="wrapper style1">
+		<div class="container">
+			<header class="major">
+				<h2>About</h2>
+			</header>
+
+			<!-- Text -->
+			<section class="content">
+				<textarea class="markdown">
+					[Nift](https://nift.cc) (aka nsm) is a cross-platform open source git-like and $\LaTeX$-like site manager coded in C++. This is the site for the HTML5 UP nsm blog repository template **landed-blog**.
+
+					See the [FAQ](@pathtopage(faq)) page for how to import/fork this repository along with answers to other frequently asked questions.
+
+					To install nsm see the [Nift install](https://nift.cc/documentation/installing_nsm.html) pages. You can learn more about managing sites from the [getting started guide](https://nift.cc/resources/get_started.html), [Nift commands](https://nift.cc/documentation/nsm_commands.html), [content files](https://nift.cc/documentation/content_files.html), [template files](https://nift.cc/documentation/template_files.html) and [Nift tutorial](https://nift.cc/documentation/nsm_tutorial.html) pages from the nsm documentation. The simpler things you may wish to do are below.
+
+					### How do I add a page to my blog?
+					1. From the terminal navigate your way to the site directory.
+					2. Enter **nsm track page-name (page-title)** where **page-name** is the name of the page file (including any directories) and optionally **page-title** is the title of the page. If you would like the page in a directory use page name **dir-name/page-name**. It can also be convenient to instead copy an existing page using **nsm cp existing-name new-name**.
+
+					### How do I remove a page from my blog?
+					1. From the terminal navigate your way to the site directory.
+					2. Enter **nsm rm page-name** where **page-name** is the name of the page file (including any directories).
+
+					### How do I modify a page on my blog?
+					1. Modify the content file **content/page-name.content**.
+					2. From the terminal navigate your way to the site directory.
+					3. To view changes locally enter **nsm build-updated** to build the updated pages, then view the site locally (see the [FAQ](@pathto(faq)) page for how).
+					4. To push the changes remotely, enter **nsm bcp "commit message"**. Note **bcp** will build the updated changes locally, commit the changes to your local repository and push the changes to the remote repository, which after a short delay will update your site online.
+				</textarea>
+			</section>
+		</div>
+	</div>

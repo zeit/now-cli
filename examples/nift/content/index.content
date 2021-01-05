@@ -1,0 +1,34 @@
+<!-- Banner -->
+	<section id="banner">
+		<div class="content">
+			<header>
+				<h2>The future has landed</h2>
+				<p>And there are no hoverboards or flying cars.<br />
+				Just apps. Lots of mother flipping apps.</p>
+			</header>
+			<span class="image"><img src="@pathtofile($[output-dir]/images/pic01.jpg)" alt="" /></span>
+		</div>
+	</section>
+	<span class="image fit main"><img src="@pathtofile($[output-dir]/images/colours.png)" alt="" height="150px" style="opacity:0.7"/></span>
+
+<!-- Main -->
+	<div id="main" class="wrapper style1">
+		<div class="container">
+			<!-- Text -->
+			<section class="content">
+				<center><h2>Landed Blog Repository Template</h2></center>
+
+				<textarea class="markdown">
+					This is the homepage for the HTML5 UP Nift blog repository template **landed-blog** [[BitBucket](https://bitbucket.org/html5up-nsm-blogs/landed-blog), [GitHub](https://github.com/html5up-nsm-blogs/landed-blog), [GitLab](https://gitlab.com/html5up-nsm-blogs/landed-blog)]. [Nift](https://nift.cc) (aka nsm) is a cross-platform open source git-like and $\LaTeX$-like site manager coded in C++.
+
+					This website uses [Showdown](http://showdownjs.com/) to convert Markdown to HTML.
+
+					You can import (or fork and rename) the **landed-blog** blog repository template to begin making your own website with the same design.
+
+					See the [About](@pathto(about)) page for information about adding/removing pages to/from your site and modifying the content/layout of your site.
+
+					See the [FAQ](@pathtopage(faq)) page for how to import/fork this repository along with answers to other frequently asked questions.
+				</textarea>
+			</section>
+		</div>
+	</div>

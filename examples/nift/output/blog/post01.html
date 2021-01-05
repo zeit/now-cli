@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<!--
+	Landed by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Landed by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+		<link rel="stylesheet" href="../assets/css/blog.css" />
+		<link rel="stylesheet" href="../assets/css/pre.css" />
+		
+		<!-- uses google-code-prettify for syntax highlighting 
+			 see https://github.com/google/code-prettify for more info -->
+		<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js">
+		</script>
+		
+		<!-- uses MathJax CDC for LaTeX support
+			 see http://docs.mathjax.org/en/latest/start.html for more info -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config
+			({
+				extensions: ["tex2jax.js"],
+				jax: ["input/TeX", "output/HTML-CSS"],
+				tex2jax: 
+				{
+					inlineMath: [['$','$'], ['\\(','\\)']],
+					displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+					processEscapes: true
+				},
+				"HTML-CSS": { availableFonts: ["MathJax TeX"] }
+			});
+		</script>
+		<script type="text/javascript" 
+				src="https://cdn.mathjax.org/mathjax/latest/MathJax.js">
+		</script>
+	</head>
+	<body class="is-preload landing" onload="setup()">
+		<div id="page-wrapper">
+			<!-- Header -->
+				<header id="header">
+					<h1 id="logo"><a href="../index.html">Landed</a></h1>
+					<nav id="nav">
+						<ul>
+							<li>
+								<a href="../about.html">About</a>
+								<ul>
+									<li>
+										<a href="#">Hobbies</a>
+										<ul>
+											<li><a href="#">Option 1</a></li>
+											<li><a href="#">Option 2</a></li>
+											<li><a href="#">Option 3</a></li>
+											<li><a href="#">Option 4</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#">Work</a>
+										<ul>
+											<li><a href="#">Option 1</a></li>
+											<li><a href="#">Option 2</a></li>
+											<li><a href="#">Option 3</a></li>
+											<li><a href="#">Option 4</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li>
+								<a href="../blog.html">Blog</a>
+								<ul>
+									<li><a href="post01.html">Post 1</a></li>
+									<li><a href="post02.html">Post 2</a></li>
+								</ul>
+							</li>
+							<li><a href="../faq.html">FAQ</a></li>
+							<li><a href="index.html" class="button primary">Home</a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Main -->
+				<div id="main" class="wrapper style1">
+					<div class="container">
+						<header class="major">
+							<h2>My first blog post</h2>
+						</header>
+			
+						<!-- Text -->
+						<section class="content">
+							<textarea class="markdown">
+								## This is a heading
+								### This is a subheading
+			
+								You can change the background colours with the css variables defined at the start of `site/assets/css/main.css`.
+			
+								You can do $\LaTeX$ equations thanks to MathJaX. Both `$..$` and `\(..\)` work for inline equations, and both `$$..$$` and `\[..\]` work for displayed equations (note inside markdown/showdown blocks use `\\(..\\)` and `\\[..\\]`, or the `$` syntax). Eg. When \\(a \ne 0\\), there are two solutions to $ax^2 + bx + c = 0$ and they are:
+			
+								$$x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}$$
+			
+								You can write your blog posts using Markdown. The easiest way to create a new page is to copy an old page, just use:
+			
+									nsm cp blog/post01 blog/postx
+			
+								See [here](https://github.com/showdownjs/showdown/wiki/Showdown's-Markdown-syntax) for documentation on Showdown's markdown syntax, and [here](https://github.com/showdownjs/showdown#setting-options) for documentation on Showdown options. 
+			
+								To use emojis you need to enable the **"emoji"** option, then emojis are eg. `:smile:`, `:+1:`, `:bacon:` and `:zap:` for :smile:, :+1:, :bacon: and :zap:. See [here](https://github.com/showdownjs/showdown/wiki/emojis) for a list of Showdown supported emojis.
+			
+								1. You can make text *italic* by surrounding it with \\*, eg. \\*text\\*. 
+								2. You can make text **bold** by surrounding it with \\*\\*, eg. \\*\\*text\\*\\*. 
+								3. You can make text ~~strikethrough~~ by surrounding it with \~\~, eg. \~\~text\~\~. 
+			
+								You can do unordered lists using \*, \- or \+, Eg.:
+								* list item 1
+								- list item 2
+								+ list item 3
+			
+								You can do ordered lists using 1., 2., 3., etc., Eg.:
+								1. list item 1
+								2. list item 2
+								3. list item 3
+			
+								You can do links using **\[text\]\(url\)**. You can do images using **\[alt text\]\(img url\)**.
+			
+								Tables aren't part of the core Markdown spec, but they are part of GFM and Showdown supports them by turning on the option **tables**.
+			
+								Colons can be used to align columns.
+			
+								In the new version, the outer pipes (|) are optional, matching GFM spec.
+			
+								You also don't need to make the raw Markdown line up prettily.
+			
+								You can also use other markdown syntax inside them.
+			
+								The following table:
+			
+								| Tables        | Are           | Cool  |
+								| ------------- |:-------------:| -----:|
+								| **col 3 is**  | right-aligned | $1600 |
+								| col 2 is      | *centered*    |   $12 |
+								| zebra stripes | ~~are neat~~  |    $1 |
+			
+								is generated using
+			
+									| Tables        | Are           | Cool  |
+									| ------------- |:-------------:| -----:|
+									| **col 3 is**  | right-aligned | $1600 |
+									| col 2 is      | *centered*    |   $12 |
+									| zebra stripes | ~~are neat~~  |    $1 |
+			
+								You can do inline code by surrounding the code with \`, eg `print("hello, world!")`.
+			
+								To do a code block just indent by 4 spaces preceded by an empty line, for example:
+			
+									#include <cstdio>
+									#include <iostream>
+			
+									int main()
+									{
+										std::cout << "hello, world!" << std::endl;
+			
+										return 0;
+									}
+								You can also do syntax highlighting outside of markdown blocks using [Google Code Prettify](https://github.com/google/code-prettify), Eg.:
+							</textarea>
+			
+			<pre class="background prettyprint linenums">
+#include &lt;cstdio>
+#include &lt;iostream>
+
+int main()
+{
+	std::cout &lt;&lt; "hello, world!" &lt;&lt; std::endl;
+
+	return 0;
+}
+</pre>
+			
+							<p>
+								The following is how to do a <b>pre</b> block without syntax highlighting outside markdown blocks, Eg.:
+							</p>
+			
+			<pre class="background">
+#include &lt;cstdio>
+#include &lt;iostream>
+
+int main()
+{
+	std::cout &lt;&lt; "hello, world!" &lt;&lt; std::endl;
+
+	return 0;
+}
+</pre>
+						</section>
+					</div>
+				</div>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="icons">
+						<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+						<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="#" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+						<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+						<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li><li>Site Manager: <a href="https://nift.cc">Nift</a></li>
+					</ul>
+				</footer>
+		</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/jquery.dropotron.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+			<script src='../assets/js/process_md_blocks.js'></script>
+			<script src="../assets/js/showdown.min.js"></script>
+			<script>
+				var converter = new showdown.Converter();
+				converter.setOption('tables', 'on');
+				converter.setOption('strikethrough', 'on');
+				converter.setOption('emoji', 'on');
+				elements = document.getElementsByClassName('markdown');
+				for(var i=0; i<elements.length; i++)
+					elements[i].innerHTML = converter.makeHtml(elements[i].innerHTML.replace(/&lt;/g, "xwxw").replace(/&gt;/g, "pqpq")).replace(/xwxw/g, "&lt;").replace(/pqpq/g, "&gt;");
+			</script>
+	</body>
+</html>

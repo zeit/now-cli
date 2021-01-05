@@ -1,0 +1,154 @@
+/*
+	see https://github.com/google/code-prettify/blob/master/README.md 
+	for the prettyprint readme.
+*/
+
+cpbutton
+{
+	text-align: center;
+	z-index:99;
+	float:right !important;
+	/*position: relative;
+	right: 10px;*/
+	margin-left: 10px;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 0px;
+	padding-bottom: 2px !important;
+	text-decoration: none;
+	background: #1f2021 !important;
+	border-radius:5px;
+	opacity: 0.5;
+
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+}
+
+cpbutton:hover
+{
+	z-index:99;
+	opacity: 1.0;
+	cursor: pointer;
+}
+
+cpbutton:active
+{
+	z-index:99;
+	background: white !important;
+}
+
+/* desert scheme ported from vim to google prettify */
+pre .nocode { background-color: none; color: #000 }
+pre .str { color: #ffa0a0 } /* string  - pink */
+pre .kwd { color: #f0e68c; font-weight: bold }
+pre .com { color: #f0e68c } /* comment - darkred#CB917E */
+pre .typ { color: #98fb98 } /* type    - lightgreen */
+pre .lit { color: #87ceeb } /* literal - skyblue */
+pre .pun { color: #fff }    /* punctuation */
+pre .pln { color: #fff }    /* plaintext */
+pre .tag { color: #f0e68c; font-weight: bold } /* html/xml tag    - lightyellow */
+pre .atn { color: #bdb76b; font-weight: bold } /* attribute name  - khaki */
+pre .atv { color: #ffa0a0 } /* attribute value - pink */
+pre .dec { color: #98fb98 } /* decimal         - lightgreen */
+
+/* Specify class=linenums on a pre to get line numbering */
+ol.linenums { margin-top: 0; margin-bottom: 0; color: #AEAEAE } /* IE indents via margin-left */
+li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8 { list-style-type: none }
+/* Alternate shading for lines */
+li.L1,li.L3,li.L5,li.L7,li.L9 { }
+
+@media print {
+  pre.prettyprint { background-color: none }
+  pre .str, code .str { color: #060 }
+  pre .kwd, code .kwd { color: #006; font-weight: bold }
+  pre .com, code .com { color: #600; font-style: italic }
+  pre .typ, code .typ { color: #404; font-weight: bold }
+  pre .lit, code .lit { color: #044 }
+  pre .pun, code .pun { color: #440 }
+  pre .pln, code .pln { color: #000 }
+  pre .tag, code .tag { color: #006; font-weight: bold }
+  pre .atn, code .atn { color: #404 }
+  pre .atv, code .atv { color: #060 }
+}
+
+pre ol.linenums
+{
+	margin-left: 20px;
+}
+
+pre ol.linenums > li 
+{
+	/*lists all line numbers*/
+	list-style-type: decimal; 
+
+	/*linenum font color*/
+	color:white;
+
+	border-left-style: dashed;
+    border-left-width: 1px;
+	border-left-color: #888888;
+
+	padding-left: 8px !important;
+	padding-top: 1px;
+
+	line-height: 1.5;
+	
+	/*sets background color for every second line*/
+	background: transparent;
+}
+
+pre.scroll
+{
+	max-height: 400px;
+	overflow-y: auto;
+}
+
+pre.square
+{
+	border-radius: 0px;
+}
+
+pre.inline
+{
+	display: inline-block !important;
+}
+
+pre.wrap
+{
+	white-space: pre-wrap;       /* css-3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+pre.resize
+{
+	resize: both;
+}
+
+pre
+{
+	background-color:#363331;
+	color: white !important;
+	text-align:left !important;
+	tab-size: 4;
+	border-radius: 5px;
+	min-width: 130px !important;
+	max-width: 90%;
+	overflow: auto;
+	margin: 0 auto;
+	margin-top: -10px;
+	margin-bottom: 15px;
+
+	font-family:'Monaco', 'Menlo', courier, monospace;
+	font-size: 0.9em;
+
+	padding-left: 10px !important; 
+	padding-right:10px !important;
+	padding-top:10px !important;
+	padding-bottom:10px !important;
+
+	border: 1px solid #a39e8e !important;
+}

@@ -1,0 +1,49 @@
+// Misc.
+	$misc: (
+		z-index-base:		10000,
+		z-index-overlay:	100000,
+		max-spotlight:		20
+	);
+
+// Duration.
+	$duration: (
+		navPanel:			0.5s,
+		transition:			0.2s,
+		landing-fadein:		1.5s
+	);
+
+// Size.
+	$size: (
+		border-radius:		4px,
+		element-height:		3em,
+		element-margin:		2em,
+		navPanel:			275px,
+		container-width:	70em
+	);
+
+// Font.
+	$font: (
+		family:				('Roboto', Helvetica, sans-serif),
+		family-fixed:		('Courier New', monospace),
+		weight:				100,
+		weight-bold:		300
+	);
+
+// Palette.
+	$palette: (
+		bg:					#1c1d26,
+		bg-transparent:		rgba(23,24,32,0.95),
+		fg-bold:			#ffffff,
+		fg:					rgba(255,255,255,0.75),
+		fg-light:			rgba(255,255,255,0.5),
+		fg-lighter:			rgba(255,255,255,0.15),
+		border:				rgba(255,255,255,0.3),
+		border-bg:			rgba(255,255,255,0.075),
+		border2:			rgba(255,255,255,0.5),
+		border2-bg:			rgba(255,255,255,0.25),
+		accent1:			#e44c65,
+		accent2:			#272833,
+		accent2-transparent:rgba(39,40,51,0.965),
+		accent3:			#5480f1,
+		accent4:			#39c088
+	);
