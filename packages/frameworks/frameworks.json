@@ -893,6 +893,37 @@
     }
   },
   {
+    "name": "Microsite",
+    "slug": "microsite",
+    "demo": "https://microsite.now-examples.now.sh",
+    "logo": "https://raw.githubusercontent.com/vercel/vercel/master/packages/frameworks/logos/microsite.svg",
+    "tagline": "Microsite is a fast, opinionated static site generator powered by Snowpack with built-in automatic partial hydration.",
+    "description": "A Microsite project, created with npm init.",
+    "website": "https://microsite.page",
+    "detectors": {
+      "every": [
+        {
+          "path": "package.json",
+          "matchContent": "\"(dev)?(d|D)ependencies\":\\s*{[^}]*\"microsite\":\\s*\".+?\"[^}]*}"
+        }
+      ]
+    },
+    "settings": {
+      "installCommand": {
+        "placeholder": "`yarn install` or `npm install`"
+      },
+      "buildCommand": {
+        "placeholder": "`npm run build` or `microsite build`"
+      },
+      "devCommand": {
+        "value": "microsite dev --port $PORT"
+      },
+      "outputDirectory": {
+        "value": "dist"
+      }
+    }
+  },
+  {
     "name": "Middleman",
     "slug": "middleman",
     "demo": "https://middleman.now-examples.now.sh",

@@ -591,6 +591,28 @@ const frameworkList: Framework[] = [
     getOutputDirName: async () => 'public',
   },
   {
+    name: 'Microsite',
+    slug: 'microsite',
+    dependency: 'microsite',
+    buildCommand: 'microsite build',
+    getOutputDirName: async () => 'dist',
+    defaultRoutes: [
+      {
+        src: '/_hydrate/[^/]*-[0-9a-f]{8}\\.(css|js)$',
+        headers: { 'cache-control': 'max-age=31536000, immutable' },
+        continue: true,
+      },
+      {
+        handle: 'filesystem',
+      },
+      {
+        src: '^.*',
+        status: 404,
+        dest: '_error.html',
+      }
+    ]
+  },
+  {
     name: 'Middleman',
     slug: 'middleman',
     buildCommand: 'bundle exec middleman build',
