@@ -253,7 +253,9 @@ export default async function main(ctx: NowContext): Promise<number> {
     const res = await client.fetch<{
       deployments: Deployment[];
       pagination: PaginationOptions;
-    }>(`/v6/deployments?${query}`);
+    }>(`/v6/deployments?${query}`, {
+      accountId: badDeployment.ownerId,
+    });
 
     next = res.pagination.next;
 
@@ -288,11 +290,11 @@ export default async function main(ctx: NowContext): Promise<number> {
   let lastBad = deployments.shift()!;
 
   while (deployments.length > 0) {
-    //console.log(deployments.map(d => d.url));
     // Add a blank space before the next step
     output.print('\n');
     const middleIndex = Math.floor(deployments.length / 2);
     const deployment = deployments[middleIndex];
+    //console.log(deployments.map(d => d.url));
     //console.log(deployment);
     const rem = plural('deployment', deployments.length, true);
     const steps = Math.round(Math.pow(deployments.length, 0.5));
