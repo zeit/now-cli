@@ -219,17 +219,19 @@ export default async function main(ctx: NowContext): Promise<number> {
 
   console.log({ good, bad, subpath });
 
-  while (deployments.length > 1) {
+  let lastBad: Deployment | null = null;
+
+  while (deployments.length > 0) {
     // Add a blank space before the next step
-    output.print('\n');
     console.log(deployments.map(d => d.url));
+    output.print('\n');
     const middleIndex = Math.floor(deployments.length / 2);
-    const middleDeployment = deployments[middleIndex];
-    //console.log(middleDeployment);
-    const created = new Date(middleDeployment.created);
+    const deployment = deployments[middleIndex];
+    //console.log(deployment);
+    const created = new Date(deployment.created);
     const steps = Math.round(Math.pow(deployments.length, 0.5));
     output.log(
-      `Bisecting: ${
+      `${chalk.bold('Bisecting:')} ${
         deployments.length
       } deployments left to test after this (roughly ${plural(
         'step',
@@ -238,18 +240,14 @@ export default async function main(ctx: NowContext): Promise<number> {
       )})`
     );
     output.log(`${chalk.bold('Created At:')} ${created}`);
-    const commit = getCommit(middleDeployment);
+    const commit = getCommit(deployment);
     if (commit) {
-      output.log(
-        `${chalk.bold('Commit:')} ${commit.message} [${commit.sha.substring(
-          0,
-          7
-        )}]`
-      );
+      const shortSha = commit.sha.substring(0, 7);
+      output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
     }
     output.log(
       `${chalk.bold('Deployment URL:')} ${link(
-        `https://${middleDeployment.url}${subpath}`
+        `https://${deployment.url}${subpath}`
       )}`
     );
 
@@ -277,17 +275,37 @@ export default async function main(ctx: NowContext): Promise<number> {
     }
 
     if (action === 'good') {
-      deployments = deployments.slice(0, middleIndex + 1);
+      deployments = deployments.slice(0, middleIndex);
     } else if (action === 'bad') {
+      lastBad = deployment;
       deployments = deployments.slice(middleIndex + 1);
     } else if (action === 'skip') {
       deployments.splice(middleIndex, 1);
     }
   }
 
-  console.log('final', deployments.length, deployments[0]);
+  output.print('\n');
+  if (lastBad) {
+    output.success(
+      `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
+    );
+    const inspectUrl = `https://vercel.com/$OWNER/$PROJECT/asdfas`;
+    output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
 
-  return 0;
+    const commit = getCommit(lastBad);
+    if (commit) {
+      const shortSha = commit.sha.substring(0, 7);
+      output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
+    }
+    return 0;
+  } else {
+    output.error(
+      `No deployments were marked as ${chalk.bold(
+        'bad'
+      )}. Please check your initial good and bad values`
+    );
+    return 1;
+  }
 }
 
 /*
