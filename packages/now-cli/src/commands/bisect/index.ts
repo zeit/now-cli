@@ -217,62 +217,53 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
-  console.log({ good, bad, subpath });
+  //console.log({ good, bad, subpath });
 
   let lastBad: Deployment | null = null;
 
   while (deployments.length > 0) {
     // Add a blank space before the next step
-    console.log(deployments.map(d => d.url));
+    //console.log(deployments.map(d => d.url));
     output.print('\n');
     const middleIndex = Math.floor(deployments.length / 2);
     const deployment = deployments[middleIndex];
     //console.log(deployment);
-    const created = new Date(deployment.created);
     const steps = Math.round(Math.pow(deployments.length, 0.5));
     output.log(
-      `${chalk.bold('Bisecting:')} ${
-        deployments.length
-      } deployments left to test after this (roughly ${plural(
-        'step',
-        steps,
-        true
-      )})`
+      chalk.magenta(
+        `${chalk.bold('Bisecting:')} ${plural(
+          'deployment',
+          deployments.length,
+          true
+        )} left to test after this (roughly ${plural('step', steps, true)})`
+      ),
+      chalk.magenta
     );
-    output.log(`${chalk.bold('Created At:')} ${created}`);
-    const commit = getCommit(deployment);
-    if (commit) {
-      const shortSha = commit.sha.substring(0, 7);
-      output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
-    }
     output.log(
       `${chalk.bold('Deployment URL:')} ${link(
         `https://${deployment.url}${subpath}`
       )}`
     );
 
-    let action = '';
-    while (!action) {
-      output.log(
-        `Please inspect the URL, then enter one of: ${chalk.bold(
-          'good'
-        )}, ${chalk.bold('bad')}, or ${chalk.bold('skip')}`
-      );
-      const answer = await inquirer.prompt({
-        type: 'input',
-        name: 'action',
-        message: `Action:`,
-      });
-      if (answer.action === 'good' || answer.action === 'g') {
-        action = 'good';
-      } else if (answer.action === 'bad' || answer.action === 'b') {
-        action = 'bad';
-      } else if (answer.action === 'skip' || answer.action === 's') {
-        action = 'skip';
-      } else {
-        output.error(`Invalid action: ${chalk.bold(answer.action)}`);
-      }
+    const created = new Date(deployment.created);
+    output.log(`${chalk.bold('Created At:')} ${created}`);
+
+    const commit = getCommit(deployment);
+    if (commit) {
+      const shortSha = commit.sha.substring(0, 7);
+      output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
     }
+
+    const { action } = await inquirer.prompt({
+      type: 'expand',
+      name: 'action',
+      message: 'Select one of :',
+      choices: [
+        { key: 'g', name: 'Good', value: 'good' },
+        { key: 'b', name: 'Bad', value: 'bad' },
+        { key: 's', name: 'Skip', value: 'skip' },
+      ],
+    });
 
     if (action === 'good') {
       deployments = deployments.slice(0, middleIndex);
@@ -289,14 +280,19 @@ export default async function main(ctx: NowContext): Promise<number> {
     output.success(
       `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
     );
-    const inspectUrl = `https://vercel.com/$OWNER/$PROJECT/asdfas`;
-    output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
+
+    const created = new Date(lastBad.created);
+    output.log(`${chalk.bold('Created At:')} ${created}`);
 
     const commit = getCommit(lastBad);
     if (commit) {
       const shortSha = commit.sha.substring(0, 7);
       output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
     }
+
+    const inspectUrl = `https://vercel.com/$OWNER/$PROJECT/asdfas`;
+    output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
+
     return 0;
   } else {
     output.error(
