@@ -117,6 +117,9 @@ export type Deployment = {
   version?: number;
   created: number;
   creator: { uid: string };
+  meta: {
+    [key: string]: any;
+  };
 };
 
 export type Alias = {

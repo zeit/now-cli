@@ -116,31 +116,31 @@ export default async function main(ctx: NowContext): Promise<number> {
       name: 'bad',
       message: `What's the deployment URL where the bug occurs\n  Leave blank for the latest deployment:`,
     });
-    let url = answer.bad;
-    if (url) {
-      if (!url.startsWith('https://')) {
-        url = `https://${url}`;
-      }
-      const parsed = parse(url);
-      if (!parsed.hostname) {
-        output.error('Invalid input: no hostname provided');
-        return 1;
-      }
-      bad = parsed.hostname;
-      if (typeof parsed.path === 'string' && parsed.path !== '/') {
-        if (subpath && subpath !== parsed.path) {
-          output.note(
-            `Ignoring subpath ${chalk.bold(
-              parsed.path
-            )} in favor of \`--path\` argument ${chalk.bold(subpath)}`
-          );
-        } else {
-          subpath = parsed.path;
-        }
+    bad = answer.bad;
+    output.print('\n');
+  }
+
+  if (bad) {
+    if (!bad.startsWith('https://')) {
+      bad = `https://${bad}`;
+    }
+    const parsed = parse(bad);
+    if (!parsed.hostname) {
+      output.error('Invalid input: no hostname provided');
+      return 1;
+    }
+    bad = parsed.hostname;
+    if (typeof parsed.path === 'string' && parsed.path !== '/') {
+      if (subpath && subpath !== parsed.path) {
+        output.note(
+          `Ignoring subpath ${chalk.bold(
+            parsed.path
+          )} in favor of \`--path\` argument ${chalk.bold(subpath)}`
+        );
+      } else {
+        subpath = parsed.path;
       }
     }
-
-    output.print('\n');
   }
 
   if (!good) {
@@ -149,32 +149,32 @@ export default async function main(ctx: NowContext): Promise<number> {
       name: 'good',
       message: `What's a deployment URL where the bug does not occur\n  Leave blank for the oldest deployment:`,
     });
-    let url = answer.good;
-    if (url) {
-      if (!url.startsWith('https://')) {
-        url = `https://${url}`;
-      }
-      const parsed = parse(url);
-      if (!parsed.hostname) {
-        output.error('Invalid input: no hostname provided');
-        return 1;
-      }
-      good = parsed.hostname;
-      if (
-        typeof parsed.path === 'string' &&
-        parsed.path !== '/' &&
-        subpath &&
-        subpath !== parsed.path
-      ) {
-        output.note(
-          `Ignoring subpath ${chalk.bold(
-            parsed.path
-          )} which does not match ${chalk.bold(subpath)}`
-        );
-      }
-    }
-
+    good = answer.good;
     output.print('\n');
+  }
+
+  if (good) {
+    if (!good.startsWith('https://')) {
+      good = `https://${good}`;
+    }
+    const parsed = parse(good);
+    if (!parsed.hostname) {
+      output.error('Invalid input: no hostname provided');
+      return 1;
+    }
+    good = parsed.hostname;
+    if (
+      typeof parsed.path === 'string' &&
+      parsed.path !== '/' &&
+      subpath &&
+      subpath !== parsed.path
+    ) {
+      output.note(
+        `Ignoring subpath ${chalk.bold(
+          parsed.path
+        )} which does not match ${chalk.bold(subpath)}`
+      );
+    }
   }
 
   if (!subpath) {
@@ -220,12 +220,14 @@ export default async function main(ctx: NowContext): Promise<number> {
   console.log({ good, bad, subpath });
 
   while (deployments.length > 1) {
+    // Add a blank space before the next step
+    output.print('\n');
     console.log(deployments.map(d => d.url));
     const middleIndex = Math.floor(deployments.length / 2);
     const middleDeployment = deployments[middleIndex];
-    console.log(middleDeployment);
+    //console.log(middleDeployment);
     const created = new Date(middleDeployment.created);
-    const steps = Math.pow(deployments.length, 0.5);
+    const steps = Math.round(Math.pow(deployments.length, 0.5));
     output.log(
       `Bisecting: ${
         deployments.length
@@ -235,9 +237,20 @@ export default async function main(ctx: NowContext): Promise<number> {
         true
       )})`
     );
-    output.log(`Created At: ${chalk.cyan(String(created))}`);
+    output.log(`${chalk.bold('Created At:')} ${created}`);
+    const commit = getCommit(middleDeployment);
+    if (commit) {
+      output.log(
+        `${chalk.bold('Commit:')} ${commit.message} [${commit.sha.substring(
+          0,
+          7
+        )}]`
+      );
+    }
     output.log(
-      `Deployment URL: ${link(`https://${middleDeployment.url}${subpath}`)}`
+      `${chalk.bold('Deployment URL:')} ${link(
+        `https://${middleDeployment.url}${subpath}`
+      )}`
     );
 
     let action = '';
@@ -270,9 +283,6 @@ export default async function main(ctx: NowContext): Promise<number> {
     } else if (action === 'skip') {
       deployments.splice(middleIndex, 1);
     }
-
-    // Add a blank space before the next step
-    output.print('\n');
   }
 
   console.log('final', deployments.length, deployments[0]);
@@ -284,3 +294,16 @@ export default async function main(ctx: NowContext): Promise<number> {
 async function getDeployment(client: Client, hostname: string): Deployment {
 }
 */
+
+function getCommit(deployment: Deployment) {
+  const sha =
+    deployment.meta?.githubCommitSha ||
+    deployment.meta?.gitlabCommitSha ||
+    deployment.meta?.bitbucketCommitSha;
+  if (!sha) return null;
+  const message =
+    deployment.meta?.githubCommitMessage ||
+    deployment.meta?.gitlabCommitMessage ||
+    deployment.meta?.bitbucketCommitMessage;
+  return { sha, message };
+}
