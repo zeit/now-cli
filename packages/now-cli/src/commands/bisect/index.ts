@@ -3,14 +3,21 @@ import plural from 'pluralize';
 import inquirer from 'inquirer';
 import { URLSearchParams, parse } from 'url';
 
+import sleep from '../../util/sleep';
 import link from '../../util/output/link';
 import logo from '../../util/output/logo';
 import handleError from '../../util/handle-error';
 import getArgs from '../../util/get-args';
 import Client from '../../util/client';
-import { getLinkedProject } from '../../util/projects/link';
 import { getPkgName } from '../../util/pkg-name';
-import { Deployment, NowContext, PaginationOptions } from '../../types';
+import { ProjectNotFound } from '../../util/errors-ts';
+import {
+  Deployment,
+  NowContext,
+  PaginationOptions,
+  Project,
+} from '../../types';
+import getProjectByIdOrName from '../../util/projects/get-project-by-id-or-name';
 
 const pkgName = getPkgName();
 
@@ -86,6 +93,10 @@ export default async function main(ctx: NowContext): Promise<number> {
   let subpath = argv['--path'] || '';
   //const run = argv['--run'] || '';
 
+  let badDeploymentPromise: Promise<DeploymentResolve> | null = null;
+  let goodDeploymentPromise: Promise<DeploymentResolve> | null = null;
+  let projectPromise: Promise<Project | ProjectNotFound> | null = null;
+
   const client = new Client({
     apiUrl,
     token,
@@ -93,22 +104,6 @@ export default async function main(ctx: NowContext): Promise<number> {
     debug: output.isDebugEnabled(),
     output,
   });
-
-  const linkedProject = await getLinkedProject(output, client);
-
-  if (linkedProject.status === 'not_linked') {
-    console.log('not linked!');
-    return 1;
-  }
-
-  if (linkedProject.status === 'error') {
-    return linkedProject.exitCode;
-  }
-
-  const { project, org } = linkedProject;
-  client.currentTeam = org.type === 'team' ? org.id : undefined;
-
-  output.log(`Bisecting project ${chalk.bold(`"${project.name}"`)}`);
 
   if (!bad) {
     const answer = await inquirer.prompt({
@@ -141,6 +136,11 @@ export default async function main(ctx: NowContext): Promise<number> {
         subpath = parsed.path;
       }
     }
+
+    badDeploymentPromise = getDeployment(client, bad);
+    projectPromise = badDeploymentPromise.then(d =>
+      getProjectByIdOrName(client, d.projectId, d.ownerId)
+    );
   }
 
   if (!good) {
@@ -175,6 +175,8 @@ export default async function main(ctx: NowContext): Promise<number> {
         )} which does not match ${chalk.bold(subpath)}`
       );
     }
+
+    goodDeploymentPromise = getDeployment(client, good);
   }
 
   if (!subpath) {
@@ -188,10 +190,53 @@ export default async function main(ctx: NowContext): Promise<number> {
     output.print('\n');
   }
 
+  //console.log({ good, bad, subpath });
+
+  output.spinner('Retrieving project…');
+  const [badDeployment, goodDeployment, project] = await Promise.all([
+    badDeploymentPromise,
+    goodDeploymentPromise,
+    projectPromise,
+  ]);
+  //console.log({ goodDeployment, badDeployment, project });
+
+  if (badDeployment) {
+    bad = badDeployment.url;
+  } else {
+    output.error(`Failed to retrieve ${chalk.bold('bad')} Deployment: ${bad}`);
+    return 1;
+  }
+
+  if (goodDeployment) {
+    good = goodDeployment.url;
+  } else {
+    output.error(
+      `Failed to retrieve ${chalk.bold('good')} Deployment: ${good}`
+    );
+    return 1;
+  }
+
+  if (!project) {
+    output.error(`Failed to retrieve Project: ${badDeployment.projectId}`);
+    return 1;
+  }
+
+  if (project instanceof ProjectNotFound) {
+    output.prettyError(project);
+    return 1;
+  }
+
+  if (badDeployment.projectId !== goodDeployment.projectId) {
+    output.error(`Good and Bad deployments must be from the same Project!`);
+    return 1;
+  }
+
+  output.log(`Bisecting project ${chalk.bold(`"${project.name}"`)}`);
+
   // Fetch all the project's "READY" deployments with the pagination API
   output.spinner('Retrieving deployments…');
-  let next: number | undefined;
   let deployments: Deployment[] = [];
+  let next: number | undefined = badDeployment.createdAt + 1;
   do {
     const query = new URLSearchParams();
     query.set('projectId', project.id);
@@ -206,8 +251,25 @@ export default async function main(ctx: NowContext): Promise<number> {
       deployments: Deployment[];
       pagination: PaginationOptions;
     }>(`/v6/deployments?${query}`);
-    deployments = deployments.concat(res.deployments);
+
     next = res.pagination.next;
+
+    let newDeployments = res.deployments;
+
+    // If we have the "good" deployment in this chunk, then we're done
+    for (let i = 0; i < newDeployments.length; i++) {
+      if (newDeployments[i].url === good) {
+        newDeployments = newDeployments.slice(0, i + 1);
+        next = undefined;
+      }
+    }
+
+    deployments = deployments.concat(newDeployments);
+
+    if (next) {
+      // Small sleep to avoid rate limiting
+      await sleep(100);
+    }
   } while (next);
 
   if (!deployments.length) {
@@ -217,13 +279,11 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
-  //console.log({ good, bad, subpath });
-
   let lastBad: Deployment | null = null;
 
   while (deployments.length > 0) {
-    // Add a blank space before the next step
     //console.log(deployments.map(d => d.url));
+    // Add a blank space before the next step
     output.print('\n');
     const middleIndex = Math.floor(deployments.length / 2);
     const deployment = deployments[middleIndex];
@@ -304,10 +364,33 @@ export default async function main(ctx: NowContext): Promise<number> {
   }
 }
 
-/*
-async function getDeployment(client: Client, hostname: string): Deployment {
+interface DeploymentResolve {
+  url: string;
+  target: string;
+  createdAt: number;
+  projectId: string;
+  ownerId: string;
 }
-*/
+
+async function getDeployment(
+  client: Client,
+  hostname: string
+): Promise<DeploymentResolve> {
+  const query = new URLSearchParams();
+  query.set('url', hostname);
+  query.set('resolve', '1');
+  query.set('noState', '1');
+  const res = await client.fetch<any>(`/v10/deployments/get?${query}`);
+  const resolve = {
+    url: res.url,
+    target: res.target,
+    createdAt: res.createdAt,
+    projectId: res.projectId,
+    ownerId: res.ownerId,
+  };
+  //console.log(res);
+  return resolve;
+}
 
 function getCommit(deployment: Deployment) {
   const sha =
