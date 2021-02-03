@@ -38,23 +38,21 @@ const help = () => {
 
   ${chalk.gray('–')} Bisect the current project interactively
 
-      ${chalk.cyan(`$ ${getPkgName()} bisect`)}
+      ${chalk.cyan(`$ ${pkgName} bisect`)}
 
   ${chalk.gray('–')} Bisect with a known bad deployment
 
-      ${chalk.cyan(
-        `$ ${getPkgName()} bisect --bad example-310pce9i0.vercel.app`
-      )}
+      ${chalk.cyan(`$ ${pkgName} bisect --bad example-310pce9i0.vercel.app`)}
 
   ${chalk.gray(
     '–'
   )} Bisect specifying that the deployment was working 3 days ago
 
-      ${chalk.cyan(`$ ${getPkgName()} bisect --good 3d`)}
+      ${chalk.cyan(`$ ${pkgName} bisect --good 3d`)}
 
   ${chalk.gray('–')} Automated bisect with a run script
 
-      ${chalk.cyan(`$ ${getPkgName()} bisect --run ./test.sh`)}
+      ${chalk.cyan(`$ ${pkgName} bisect --run ./test.sh`)}
   `);
 };
 
@@ -227,7 +225,12 @@ export default async function main(ctx: NowContext): Promise<number> {
   }
 
   if (badDeployment.projectId !== goodDeployment.projectId) {
-    output.error(`Good and Bad deployments must be from the same Project!`);
+    output.error(`Good and Bad deployments must be from the same Project`);
+    return 1;
+  }
+
+  if (badDeployment.createdAt < goodDeployment.createdAt) {
+    output.error(`Good deployment must be older than the Bad deployment`);
     return 1;
   }
 
@@ -261,6 +264,7 @@ export default async function main(ctx: NowContext): Promise<number> {
       if (newDeployments[i].url === good) {
         newDeployments = newDeployments.slice(0, i + 1);
         next = undefined;
+        break;
       }
     }
 
@@ -279,6 +283,8 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
+  // The first deployment is the one that was marked
+  // as "bad", so that one does not need to be tested
   let lastBad = deployments.shift()!;
 
   while (deployments.length > 0) {
@@ -363,7 +369,7 @@ interface DeploymentResolve {
   ownerId: string;
 }
 
-async function getDeployment(
+function getDeployment(
   client: Client,
   hostname: string
 ): Promise<DeploymentResolve> {
@@ -371,16 +377,7 @@ async function getDeployment(
   query.set('url', hostname);
   query.set('resolve', '1');
   query.set('noState', '1');
-  const res = await client.fetch<any>(`/v10/deployments/get?${query}`);
-  const resolve = {
-    url: res.url,
-    target: res.target,
-    createdAt: res.createdAt,
-    projectId: res.projectId,
-    ownerId: res.ownerId,
-  };
-  //console.log(res);
-  return resolve;
+  return client.fetch<DeploymentResolve>(`/v10/deployments/get?${query}`);
 }
 
 function getCommit(deployment: Deployment) {
