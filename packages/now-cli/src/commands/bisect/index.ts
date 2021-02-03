@@ -319,7 +319,8 @@ export default async function main(ctx: NowContext): Promise<number> {
     const commit = getCommit(deployment);
     if (commit) {
       const shortSha = commit.sha.substring(0, 7);
-      output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
+      const firstLine = commit.message.split('\n')[0];
+      output.log(`${chalk.bold('Commit:')} [${shortSha}] ${firstLine}`);
     }
 
     const { action } = await inquirer.prompt({
@@ -354,7 +355,8 @@ export default async function main(ctx: NowContext): Promise<number> {
   const commit = getCommit(lastBad);
   if (commit) {
     const shortSha = commit.sha.substring(0, 7);
-    output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
+    const firstLine = commit.message.split('\n')[0];
+    output.log(`${chalk.bold('Commit:')} [${shortSha}] ${firstLine}`);
   }
 
   const inspectUrl = `https://vercel.com/$OWNER/$PROJECT/asdfas`;
