@@ -1,6 +1,7 @@
 import chalk from 'chalk';
+import plural from 'pluralize';
 import inquirer from 'inquirer';
-import { URLSearchParams } from 'url';
+import { URLSearchParams, parse } from 'url';
 
 import link from '../../util/output/link';
 import logo from '../../util/output/logo';
@@ -21,8 +22,9 @@ const help = () => {
 
     -h, --help                 Output usage information
     -d, --debug                Debug mode [off]
-    -g, --good                 Known good deployment or date
-    -b, --bad                  Known bad deployment or date
+    -p, --path                 Subpath of the deployment URL to test
+    -g, --good                 Known good deployment URL
+    -b, --bad                  Known bad deployment URL
     -r, --run                  Test script to run for each deployment
 
   ${chalk.dim('Examples:')}
@@ -64,6 +66,8 @@ export default async function main(ctx: NowContext): Promise<number> {
       '-g': '--good',
       '--bad': String,
       '-b': '--bad',
+      '--path': String,
+      '-p': '--path',
       '--run': String,
       '-r': '--run',
     });
@@ -76,9 +80,11 @@ export default async function main(ctx: NowContext): Promise<number> {
     help();
     return 2;
   }
-  console.log(argv);
 
-  const cwd = process.cwd();
+  let bad = argv['--bad'] || '';
+  let good = argv['--good'] || '';
+  let subpath = argv['--path'] || '';
+  //const run = argv['--run'] || '';
 
   const client = new Client({
     apiUrl,
@@ -88,7 +94,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     output,
   });
 
-  const linkedProject = await getLinkedProject(output, client, cwd);
+  const linkedProject = await getLinkedProject(output, client);
 
   if (linkedProject.status === 'not_linked') {
     console.log('not linked!');
@@ -104,7 +110,83 @@ export default async function main(ctx: NowContext): Promise<number> {
 
   output.log(`Bisecting project ${chalk.bold(`"${project.name}"`)}`);
 
-  // TODO: Prompt for starting good/bad deployments/dates
+  if (!bad) {
+    const answer = await inquirer.prompt({
+      type: 'input',
+      name: 'bad',
+      message: `What's the deployment URL where the bug occurs\n  Leave blank for the latest deployment:`,
+    });
+    let url = answer.bad;
+    if (url) {
+      if (!url.startsWith('https://')) {
+        url = `https://${url}`;
+      }
+      const parsed = parse(url);
+      if (!parsed.hostname) {
+        output.error('Invalid input: no hostname provided');
+        return 1;
+      }
+      bad = parsed.hostname;
+      if (typeof parsed.path === 'string' && parsed.path !== '/') {
+        if (subpath && subpath !== parsed.path) {
+          output.note(
+            `Ignoring subpath ${chalk.bold(
+              parsed.path
+            )} in favor of \`--path\` argument ${chalk.bold(subpath)}`
+          );
+        } else {
+          subpath = parsed.path;
+        }
+      }
+    }
+
+    output.print('\n');
+  }
+
+  if (!good) {
+    const answer = await inquirer.prompt({
+      type: 'input',
+      name: 'good',
+      message: `What's a deployment URL where the bug does not occur\n  Leave blank for the oldest deployment:`,
+    });
+    let url = answer.good;
+    if (url) {
+      if (!url.startsWith('https://')) {
+        url = `https://${url}`;
+      }
+      const parsed = parse(url);
+      if (!parsed.hostname) {
+        output.error('Invalid input: no hostname provided');
+        return 1;
+      }
+      good = parsed.hostname;
+      if (
+        typeof parsed.path === 'string' &&
+        parsed.path !== '/' &&
+        subpath &&
+        subpath !== parsed.path
+      ) {
+        output.note(
+          `Ignoring subpath ${chalk.bold(
+            parsed.path
+          )} which does not match ${chalk.bold(subpath)}`
+        );
+      }
+    }
+
+    output.print('\n');
+  }
+
+  if (!subpath) {
+    const answer = await inquirer.prompt({
+      type: 'input',
+      name: 'subpath',
+      message: `What's the URL path where the bug occurs:`,
+    });
+    subpath = answer.subpath;
+
+    output.print('\n');
+  }
 
   // Fetch all the project's "READY" deployments with the pagination API
   output.spinner('Retrieving deployments…');
@@ -127,7 +209,6 @@ export default async function main(ctx: NowContext): Promise<number> {
     deployments = deployments.concat(res.deployments);
     next = res.pagination.next;
   } while (next);
-  output.stopSpinner();
 
   if (!deployments.length) {
     output.error(
@@ -136,45 +217,70 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
-  while (deployments.length > 0) {
+  console.log({ good, bad, subpath });
+
+  while (deployments.length > 1) {
+    console.log(deployments.map(d => d.url));
     const middleIndex = Math.floor(deployments.length / 2);
     const middleDeployment = deployments[middleIndex];
+    console.log(middleDeployment);
+    const created = new Date(middleDeployment.created);
+    const steps = Math.pow(deployments.length, 0.5);
     output.log(
-      `Bisecting: ${deployments.length} deployments left to test after this (roughly n steps)`
+      `Bisecting: ${
+        deployments.length
+      } deployments left to test after this (roughly ${plural(
+        'step',
+        steps,
+        true
+      )})`
     );
-    output.log(`Deployment URL: ${link(`https://${middleDeployment.url}`)}`);
+    output.log(`Created At: ${chalk.cyan(String(created))}`);
+    output.log(
+      `Deployment URL: ${link(`https://${middleDeployment.url}${subpath}`)}`
+    );
 
     let action = '';
     while (!action) {
       output.log(
-        `Please inspect the deployment and enter one of: ${chalk.bold(
+        `Please inspect the URL, then enter one of: ${chalk.bold(
           'good'
         )}, ${chalk.bold('bad')}, or ${chalk.bold('skip')}`
       );
-      const answers = await inquirer.prompt({
+      const answer = await inquirer.prompt({
         type: 'input',
         name: 'action',
         message: `Action:`,
       });
-      if (answers.action === 'good' || answers.action === 'g') {
+      if (answer.action === 'good' || answer.action === 'g') {
         action = 'good';
-      } else if (answers.action === 'bad' || answers.action === 'b') {
+      } else if (answer.action === 'bad' || answer.action === 'b') {
         action = 'bad';
-      } else if (answers.action === 'skip' || answers.action === 's') {
+      } else if (answer.action === 'skip' || answer.action === 's') {
         action = 'skip';
       } else {
-        output.warn(`Invalid action: ${chalk.bold(answers.action)}`);
+        output.error(`Invalid action: ${chalk.bold(answer.action)}`);
       }
     }
 
     if (action === 'good') {
-      deployments = deployments.slice(0, middleIndex);
+      deployments = deployments.slice(0, middleIndex + 1);
     } else if (action === 'bad') {
-      deployments = deployments.slice(middleIndex);
+      deployments = deployments.slice(middleIndex + 1);
     } else if (action === 'skip') {
       deployments.splice(middleIndex, 1);
     }
+
+    // Add a blank space before the next step
+    output.print('\n');
   }
+
+  console.log('final', deployments.length, deployments[0]);
 
   return 0;
 }
+
+/*
+async function getDeployment(client: Client, hostname: string): Deployment {
+}
+*/
