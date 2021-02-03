@@ -279,7 +279,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
-  let lastBad: Deployment | null = null;
+  let lastBad = deployments.shift()!;
 
   while (deployments.length > 0) {
     //console.log(deployments.map(d => d.url));
@@ -336,32 +336,23 @@ export default async function main(ctx: NowContext): Promise<number> {
   }
 
   output.print('\n');
-  if (lastBad) {
-    output.success(
-      `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
-    );
+  output.success(
+    `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
+  );
 
-    const created = new Date(lastBad.created);
-    output.log(`${chalk.bold('Created At:')} ${created}`);
+  const created = new Date(lastBad.created);
+  output.log(`${chalk.bold('Created At:')} ${created}`);
 
-    const commit = getCommit(lastBad);
-    if (commit) {
-      const shortSha = commit.sha.substring(0, 7);
-      output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
-    }
-
-    const inspectUrl = `https://vercel.com/$OWNER/$PROJECT/asdfas`;
-    output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
-
-    return 0;
-  } else {
-    output.error(
-      `No deployments were marked as ${chalk.bold(
-        'bad'
-      )}. Please check your initial good and bad values`
-    );
-    return 1;
+  const commit = getCommit(lastBad);
+  if (commit) {
+    const shortSha = commit.sha.substring(0, 7);
+    output.log(`${chalk.bold('Commit:')} [${shortSha}] ${commit.message}`);
   }
+
+  const inspectUrl = `https://vercel.com/$OWNER/$PROJECT/asdfas`;
+  output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
+
+  return 0;
 }
 
 interface DeploymentResolve {
