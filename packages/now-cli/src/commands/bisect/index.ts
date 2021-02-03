@@ -212,7 +212,7 @@ export default async function main(ctx: NowContext): Promise<number> {
 
   if (!deployments.length) {
     output.error(
-      'Can not bisect because this project does not have any deployments'
+      'Cannot bisect because this project does not have any deployments'
     );
     return 1;
   }
@@ -228,14 +228,14 @@ export default async function main(ctx: NowContext): Promise<number> {
     const middleIndex = Math.floor(deployments.length / 2);
     const deployment = deployments[middleIndex];
     //console.log(deployment);
+    const rem = plural('deployment', deployments.length, true);
     const steps = Math.round(Math.pow(deployments.length, 0.5));
+    const pSteps = plural('step', steps, true);
     output.log(
       chalk.magenta(
-        `${chalk.bold('Bisecting:')} ${plural(
-          'deployment',
-          deployments.length,
-          true
-        )} left to test after this (roughly ${plural('step', steps, true)})`
+        `${chalk.bold(
+          'Bisecting:'
+        )} ${rem} left to test after this (roughly ${pSteps})`
       ),
       chalk.magenta
     );
@@ -257,7 +257,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     const { action } = await inquirer.prompt({
       type: 'expand',
       name: 'action',
-      message: 'Select one of :',
+      message: 'Select an action:',
       choices: [
         { key: 'g', name: 'Good', value: 'good' },
         { key: 'b', name: 'Bad', value: 'bad' },
