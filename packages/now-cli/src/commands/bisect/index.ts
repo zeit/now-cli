@@ -11,7 +11,10 @@ import getArgs from '../../util/get-args';
 import Client from '../../util/client';
 import { getPkgName } from '../../util/pkg-name';
 import { ProjectNotFound } from '../../util/errors-ts';
+import getInspectUrl from '../../util/deployment/get-inspect-url';
+import { getOrgById } from '../../util/projects/link';
 import {
+  Org,
   Deployment,
   NowContext,
   PaginationOptions,
@@ -29,9 +32,9 @@ const help = () => {
 
     -h, --help                 Output usage information
     -d, --debug                Debug mode [off]
+    -b, --bad                  Known bad URL
+    -g, --good                 Known good URL
     -p, --path                 Subpath of the deployment URL to test
-    -g, --good                 Known good deployment URL
-    -b, --bad                  Known bad deployment URL
     -r, --run                  Test script to run for each deployment
 
   ${chalk.dim('Examples:')}
@@ -44,9 +47,7 @@ const help = () => {
 
       ${chalk.cyan(`$ ${pkgName} bisect --bad example-310pce9i0.vercel.app`)}
 
-  ${chalk.gray(
-    '–'
-  )} Bisect specifying that the deployment was working 3 days ago
+  ${chalk.gray('–')} Bisect specifying a deployment that was working 3 days ago
 
       ${chalk.cyan(`$ ${pkgName} bisect --good 3d`)}
 
@@ -91,6 +92,7 @@ export default async function main(ctx: NowContext): Promise<number> {
   let subpath = argv['--path'] || '';
   //const run = argv['--run'] || '';
 
+  let orgPromise: Promise<Org | null> | null = null;
   let badDeploymentPromise: Promise<DeploymentResolve> | null = null;
   let goodDeploymentPromise: Promise<DeploymentResolve> | null = null;
   let projectPromise: Promise<Project | ProjectNotFound> | null = null;
@@ -107,10 +109,9 @@ export default async function main(ctx: NowContext): Promise<number> {
     const answer = await inquirer.prompt({
       type: 'input',
       name: 'bad',
-      message: `What's the deployment URL where the bug occurs\n  Leave blank for the latest deployment:`,
+      message: `Specify a URL where the bug occurs:`,
     });
     bad = answer.bad;
-    output.print('\n');
   }
 
   if (bad) {
@@ -139,16 +140,16 @@ export default async function main(ctx: NowContext): Promise<number> {
     projectPromise = badDeploymentPromise.then(d =>
       getProjectByIdOrName(client, d.projectId, d.ownerId)
     );
+    orgPromise = badDeploymentPromise.then(d => getOrgById(client, d.ownerId));
   }
 
   if (!good) {
     const answer = await inquirer.prompt({
       type: 'input',
       name: 'good',
-      message: `What's a deployment URL where the bug does not occur\n  Leave blank for the oldest deployment:`,
+      message: `Specify a URL where the bug does not occur:`,
     });
     good = answer.good;
-    output.print('\n');
   }
 
   if (good) {
@@ -181,11 +182,9 @@ export default async function main(ctx: NowContext): Promise<number> {
     const answer = await inquirer.prompt({
       type: 'input',
       name: 'subpath',
-      message: `What's the URL path where the bug occurs:`,
+      message: `Specify the URL subpath where the bug occurs:`,
     });
     subpath = answer.subpath;
-
-    output.print('\n');
   }
 
   //console.log({ good, bad, subpath });
@@ -359,8 +358,11 @@ export default async function main(ctx: NowContext): Promise<number> {
     output.log(`${chalk.bold('Commit:')} [${shortSha}] ${firstLine}`);
   }
 
-  const inspectUrl = `https://vercel.com/$OWNER/$PROJECT/asdfas`;
-  output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
+  const org = await orgPromise;
+  if (org) {
+    const inspectUrl = getInspectUrl(lastBad.url, org.slug);
+    output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
+  }
 
   return 0;
 }
