@@ -1,7 +1,8 @@
-import chalk, { Chalk } from 'chalk';
+import boxen from 'boxen';
 import execa from 'execa';
 import plural from 'pluralize';
 import inquirer from 'inquirer';
+import chalk, { Chalk } from 'chalk';
 import { URLSearchParams, parse } from 'url';
 
 import sleep from '../../util/sleep';
@@ -297,7 +298,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     output.log(`${chalk.bold('Deployment URL:')} ${link(testUrl)}`);
 
     const created = new Date(deployment.created);
-    output.log(`${chalk.bold('Created At:')} ${created}`);
+    output.log(`${chalk.bold('Date:')} ${created}`);
 
     const commit = getCommit(deployment);
     if (commit) {
@@ -364,25 +365,31 @@ export default async function main(ctx: NowContext): Promise<number> {
   }
 
   output.print('\n');
-  output.success(
-    `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
-  );
 
   const created = new Date(lastBad.created);
-  output.log(`${chalk.bold('Created At:')} ${created}`);
+  let result = [
+    chalk.bold(
+      `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
+    ),
+    '',
+    `   ${chalk.bold('Date:')} ${created}`,
+  ];
 
   const commit = getCommit(lastBad);
   if (commit) {
     const shortSha = commit.sha.substring(0, 7);
     const firstLine = commit.message.split('\n')[0];
-    output.log(`${chalk.bold('Commit:')} [${shortSha}] ${firstLine}`);
+    result.push(` ${chalk.bold('Commit:')} [${shortSha}] ${firstLine}`);
   }
 
   const org = await orgPromise;
   if (org) {
     const inspectUrl = getInspectUrl(lastBad.url, org.slug);
-    output.log(`${chalk.bold('Inspect:')} ${link(inspectUrl)}`);
+    result.push(`${chalk.bold('Inspect:')} ${link(inspectUrl)}`);
   }
+
+  output.print(boxen(result.join('\n'), { padding: 1 }));
+  output.print('\n');
 
   return 0;
 }
