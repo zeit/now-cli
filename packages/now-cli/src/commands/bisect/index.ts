@@ -11,17 +11,9 @@ import handleError from '../../util/handle-error';
 import getArgs from '../../util/get-args';
 import Client from '../../util/client';
 import { getPkgName } from '../../util/pkg-name';
-import { ProjectNotFound } from '../../util/errors-ts';
 import getInspectUrl from '../../util/deployment/get-inspect-url';
 import { getOrgById } from '../../util/projects/link';
-import {
-  Org,
-  Deployment,
-  NowContext,
-  PaginationOptions,
-  Project,
-} from '../../types';
-import getProjectByIdOrName from '../../util/projects/get-project-by-id-or-name';
+import { Org, Deployment, NowContext, PaginationOptions } from '../../types';
 
 interface DeploymentResolve {
   url: string;
@@ -109,7 +101,6 @@ export default async function main(ctx: NowContext): Promise<number> {
   let orgPromise: Promise<Org | null> | null = null;
   let badDeploymentPromise: Promise<DeploymentResolve> | null = null;
   let goodDeploymentPromise: Promise<DeploymentResolve> | null = null;
-  let projectPromise: Promise<Project | ProjectNotFound> | null = null;
 
   const client = new Client({
     apiUrl,
@@ -151,9 +142,6 @@ export default async function main(ctx: NowContext): Promise<number> {
     }
 
     badDeploymentPromise = getDeployment(client, bad);
-    projectPromise = badDeploymentPromise.then(d =>
-      getProjectByIdOrName(client, d.projectId, d.ownerId)
-    );
     orgPromise = badDeploymentPromise.then(d => getOrgById(client, d.ownerId));
   }
 
@@ -203,11 +191,10 @@ export default async function main(ctx: NowContext): Promise<number> {
 
   //console.log({ good, bad, subpath });
 
-  output.spinner('Retrieving project…');
-  const [badDeployment, goodDeployment, project] = await Promise.all([
+  output.spinner('Retrieving deployments…');
+  const [badDeployment, goodDeployment] = await Promise.all([
     badDeploymentPromise,
     goodDeploymentPromise,
-    projectPromise,
   ]);
   //console.log({ goodDeployment, badDeployment, project });
 
@@ -218,6 +205,8 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
+  const { projectId } = badDeployment;
+
   if (goodDeployment) {
     good = goodDeployment.url;
   } else {
@@ -227,17 +216,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
-  if (!project) {
-    output.error(`Failed to retrieve Project: ${badDeployment.projectId}`);
-    return 1;
-  }
-
-  if (project instanceof ProjectNotFound) {
-    output.prettyError(project);
-    return 1;
-  }
-
-  if (badDeployment.projectId !== goodDeployment.projectId) {
+  if (projectId !== goodDeployment.projectId) {
     output.error(`Good and Bad deployments must be from the same Project`);
     return 1;
   }
@@ -247,15 +226,12 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
-  output.log(`Bisecting project ${chalk.bold(`"${project.name}"`)}`);
-
   // Fetch all the project's "READY" deployments with the pagination API
-  output.spinner('Retrieving deployments…');
   let deployments: Deployment[] = [];
   let next: number | undefined = badDeployment.createdAt + 1;
   do {
     const query = new URLSearchParams();
-    query.set('projectId', project.id);
+    query.set('projectId', projectId);
     query.set('target', 'production');
     query.set('limit', '100');
     query.set('state', 'READY');
