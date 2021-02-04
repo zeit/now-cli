@@ -2,6 +2,7 @@ import boxen from 'boxen';
 import execa from 'execa';
 import plural from 'pluralize';
 import inquirer from 'inquirer';
+import { resolve } from 'path';
 import chalk, { Chalk } from 'chalk';
 import { URLSearchParams, parse } from 'url';
 
@@ -97,7 +98,11 @@ export default async function main(ctx: NowContext): Promise<number> {
   let bad = argv['--bad'] || '';
   let good = argv['--good'] || '';
   let subpath = argv['--path'] || '';
-  const run = argv['--run'] || '';
+  let run = argv['--run'] || '';
+
+  if (run) {
+    run = resolve(run);
+  }
 
   let orgPromise: Promise<Org | null> | null = null;
   let badDeploymentPromise: Promise<DeploymentResolve> | null = null;
