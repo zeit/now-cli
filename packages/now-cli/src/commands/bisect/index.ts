@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalk, { Chalk } from 'chalk';
 import execa from 'execa';
 import plural from 'pluralize';
 import inquirer from 'inquirer';
@@ -347,17 +347,21 @@ export default async function main(ctx: NowContext): Promise<number> {
         return 1;
       }
       const { exitCode } = proc;
+      let color: Chalk;
       if (exitCode === 0) {
+        color = chalk.green;
         action = 'good';
       } else if (exitCode === 125) {
         action = 'skip';
+        color = chalk.grey;
       } else {
         action = 'bad';
+        color = chalk.red;
       }
       output.log(
-        `Run script returned exit code ${chalk.bold(
-          String(exitCode)
-        )}: ${chalk.cyan(action)}`
+        `Run script returned exit code ${chalk.bold(String(exitCode))}: ${color(
+          action
+        )}`
       );
     } else {
       const answer = await inquirer.prompt({
