@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import execa from 'execa';
 import plural from 'pluralize';
 import inquirer from 'inquirer';
 import { URLSearchParams, parse } from 'url';
@@ -21,6 +22,19 @@ import {
   Project,
 } from '../../types';
 import getProjectByIdOrName from '../../util/projects/get-project-by-id-or-name';
+
+interface DeploymentResolve {
+  url: string;
+  target: string;
+  createdAt: number;
+  projectId: string;
+  ownerId: string;
+}
+
+interface Deployments {
+  deployments: Deployment[];
+  pagination: PaginationOptions;
+}
 
 const pkgName = getPkgName();
 
@@ -90,7 +104,7 @@ export default async function main(ctx: NowContext): Promise<number> {
   let bad = argv['--bad'] || '';
   let good = argv['--good'] || '';
   let subpath = argv['--path'] || '';
-  //const run = argv['--run'] || '';
+  const run = argv['--run'] || '';
 
   let orgPromise: Promise<Org | null> | null = null;
   let badDeploymentPromise: Promise<DeploymentResolve> | null = null;
@@ -249,10 +263,7 @@ export default async function main(ctx: NowContext): Promise<number> {
       query.set('until', String(next));
     }
 
-    const res = await client.fetch<{
-      deployments: Deployment[];
-      pagination: PaginationOptions;
-    }>(`/v6/deployments?${query}`, {
+    const res = await client.fetch<Deployments>(`/v6/deployments?${query}`, {
       accountId: badDeployment.ownerId,
     });
 
@@ -306,11 +317,8 @@ export default async function main(ctx: NowContext): Promise<number> {
       ),
       chalk.magenta
     );
-    output.log(
-      `${chalk.bold('Deployment URL:')} ${link(
-        `https://${deployment.url}${subpath}`
-      )}`
-    );
+    const testUrl = `https://${deployment.url}${subpath}`;
+    output.log(`${chalk.bold('Deployment URL:')} ${link(testUrl)}`);
 
     const created = new Date(deployment.created);
     output.log(`${chalk.bold('Created At:')} ${created}`);
@@ -322,16 +330,48 @@ export default async function main(ctx: NowContext): Promise<number> {
       output.log(`${chalk.bold('Commit:')} [${shortSha}] ${firstLine}`);
     }
 
-    const { action } = await inquirer.prompt({
-      type: 'expand',
-      name: 'action',
-      message: 'Select an action:',
-      choices: [
-        { key: 'g', name: 'Good', value: 'good' },
-        { key: 'b', name: 'Bad', value: 'bad' },
-        { key: 's', name: 'Skip', value: 'skip' },
-      ],
-    });
+    let action: string;
+    if (run) {
+      const proc = await execa(run, [testUrl], {
+        stdio: 'inherit',
+        reject: false,
+        env: {
+          ...process.env,
+          HOST: deployment.url,
+          URL: testUrl,
+        },
+      });
+      if (proc instanceof Error && typeof proc.exitCode !== 'number') {
+        // Script does not exist or is not executable, so exit
+        output.prettyError(proc);
+        return 1;
+      }
+      const { exitCode } = proc;
+      if (exitCode === 0) {
+        action = 'good';
+      } else if (exitCode === 125) {
+        action = 'skip';
+      } else {
+        action = 'bad';
+      }
+      output.log(
+        `Run script returned exit code ${chalk.bold(
+          String(exitCode)
+        )}: ${chalk.cyan(action)}`
+      );
+    } else {
+      const answer = await inquirer.prompt({
+        type: 'expand',
+        name: 'action',
+        message: 'Select an action:',
+        choices: [
+          { key: 'g', name: 'Good', value: 'good' },
+          { key: 'b', name: 'Bad', value: 'bad' },
+          { key: 's', name: 'Skip', value: 'skip' },
+        ],
+      });
+      action = answer.action;
+    }
 
     if (action === 'good') {
       deployments = deployments.slice(0, middleIndex);
@@ -365,14 +405,6 @@ export default async function main(ctx: NowContext): Promise<number> {
   }
 
   return 0;
-}
-
-interface DeploymentResolve {
-  url: string;
-  target: string;
-  createdAt: number;
-  projectId: string;
-  ownerId: string;
 }
 
 function getDeployment(
