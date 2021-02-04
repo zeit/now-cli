@@ -405,7 +405,7 @@ export default async function main(ctx: NowContext): Promise<number> {
   const org = await orgPromise;
   if (org) {
     const inspectUrl = getInspectUrl(lastBad.url, org.slug);
-    output.log(`${chalk.bold('Inspect:')} ${inspectUrl}`);
+    output.log(`${chalk.bold('Inspect:')} ${link(inspectUrl)}`);
   }
 
   return 0;
