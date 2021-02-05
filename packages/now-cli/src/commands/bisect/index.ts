@@ -290,7 +290,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     //console.log(deployments.map(d => d.url));
     //console.log(deployment);
     const rem = plural('deployment', deployments.length, true);
-    const steps = Math.round(Math.pow(deployments.length, 0.5));
+    const steps = Math.ceil(Math.log2(deployments.length));
     const pSteps = plural('step', steps, true);
     output.log(
       chalk.magenta(
