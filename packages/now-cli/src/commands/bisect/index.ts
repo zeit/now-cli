@@ -196,14 +196,11 @@ export default async function main(ctx: NowContext): Promise<number> {
     subpath = answer.subpath;
   }
 
-  //console.log({ good, bad, subpath });
-
   output.spinner('Retrieving deployments…');
   const [badDeployment, goodDeployment] = await Promise.all([
     badDeploymentPromise,
     goodDeploymentPromise,
   ]);
-  //console.log({ goodDeployment, badDeployment, project });
 
   if (badDeployment) {
     bad = badDeployment.url;
@@ -287,8 +284,6 @@ export default async function main(ctx: NowContext): Promise<number> {
     output.print('\n');
     const middleIndex = Math.floor(deployments.length / 2);
     const deployment = deployments[middleIndex];
-    //console.log(deployments.map(d => d.url));
-    //console.log(deployment);
     const rem = plural('deployment', deployments.length, true);
     const steps = Math.ceil(Math.log2(deployments.length));
     const pSteps = plural('step', steps, true);
