@@ -7,6 +7,7 @@ import chalk, { Chalk } from 'chalk';
 import { URLSearchParams, parse } from 'url';
 
 import sleep from '../../util/sleep';
+import formatDate from '../../util/format-date';
 import link from '../../util/output/link';
 import logo from '../../util/output/logo';
 import handleError from '../../util/handle-error';
@@ -302,8 +303,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     const testUrl = `https://${deployment.url}${subpath}`;
     output.log(`${chalk.bold('Deployment URL:')} ${link(testUrl)}`);
 
-    const created = new Date(deployment.created);
-    output.log(`${chalk.bold('Date:')} ${created}`);
+    output.log(`${chalk.bold('Date:')} ${formatDate(deployment.created)}`);
 
     const commit = getCommit(deployment);
     if (commit) {
@@ -371,13 +371,12 @@ export default async function main(ctx: NowContext): Promise<number> {
 
   output.print('\n');
 
-  const created = new Date(lastBad.created);
   let result = [
     chalk.bold(
       `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
     ),
     '',
-    `   ${chalk.bold('Date:')} ${created}`,
+    `   ${chalk.bold('Date:')} ${formatDate(lastBad.created)}`,
   ];
 
   const commit = getCommit(lastBad);
