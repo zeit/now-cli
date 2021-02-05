@@ -105,9 +105,9 @@ export default async function main(ctx: NowContext): Promise<number> {
     run = resolve(run);
   }
 
-  let orgPromise: Promise<Org | null> | null = null;
-  let badDeploymentPromise: Promise<DeploymentResolve> | null = null;
-  let goodDeploymentPromise: Promise<DeploymentResolve> | null = null;
+  let orgPromise: Promise<Org | null | Error> | null = null;
+  let badDeploymentPromise: Promise<DeploymentResolve | Error> | null = null;
+  let goodDeploymentPromise: Promise<DeploymentResolve | Error> | null = null;
 
   const client = new Client({
     apiUrl,
@@ -148,8 +148,12 @@ export default async function main(ctx: NowContext): Promise<number> {
       }
     }
 
-    badDeploymentPromise = getDeployment(client, bad);
-    orgPromise = badDeploymentPromise.then(d => getOrgById(client, d.ownerId));
+    badDeploymentPromise = getDeployment(client, bad).catch(err => err);
+    orgPromise = badDeploymentPromise
+      .then(d => {
+        return d instanceof Error ? null : getOrgById(client, d.ownerId);
+      })
+      .catch(err => err);
   }
 
   if (!good) {
@@ -184,7 +188,7 @@ export default async function main(ctx: NowContext): Promise<number> {
       );
     }
 
-    goodDeploymentPromise = getDeployment(client, good);
+    goodDeploymentPromise = getDeployment(client, good).catch(err => err);
   }
 
   if (!subpath) {
@@ -203,6 +207,11 @@ export default async function main(ctx: NowContext): Promise<number> {
   ]);
 
   if (badDeployment) {
+    if (badDeployment instanceof Error) {
+      badDeployment.message += ` "${bad}"`;
+      output.prettyError(badDeployment);
+      return 1;
+    }
     bad = badDeployment.url;
   } else {
     output.error(`Failed to retrieve ${chalk.bold('bad')} Deployment: ${bad}`);
@@ -212,6 +221,11 @@ export default async function main(ctx: NowContext): Promise<number> {
   const { projectId } = badDeployment;
 
   if (goodDeployment) {
+    if (goodDeployment instanceof Error) {
+      goodDeployment.message += ` "${good}"`;
+      output.prettyError(goodDeployment);
+      return 1;
+    }
     good = goodDeployment.url;
   } else {
     output.error(
@@ -382,7 +396,7 @@ export default async function main(ctx: NowContext): Promise<number> {
   }
 
   const org = await orgPromise;
-  if (org) {
+  if (org && !(org instanceof Error)) {
     const inspectUrl = getInspectUrl(lastBad.url, org.slug);
     result.push(`${chalk.bold('Inspect:')} ${link(inspectUrl)}`);
   }
