@@ -299,7 +299,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     const middleIndex = Math.floor(deployments.length / 2);
     const deployment = deployments[middleIndex];
     const rem = plural('deployment', deployments.length, true);
-    const steps = Math.ceil(Math.log2(deployments.length));
+    const steps = Math.floor(Math.log2(deployments.length));
     const pSteps = plural('step', steps, true);
     output.log(
       chalk.magenta(
