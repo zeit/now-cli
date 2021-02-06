@@ -117,6 +117,9 @@ export type Deployment = {
   version?: number;
   created: number;
   creator: { uid: string };
+  target: string | null;
+  ownerId: string;
+  projectId: string;
   meta: {
     [key: string]: any;
   };

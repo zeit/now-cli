@@ -16,18 +16,19 @@ import Client from '../../util/client';
 import { getPkgName } from '../../util/pkg-name';
 import getInspectUrl from '../../util/deployment/get-inspect-url';
 import { getOrgById } from '../../util/projects/link';
-import { Org, Deployment, NowContext, PaginationOptions } from '../../types';
+import { Output } from '../../util/output';
+import { Deployment, NowContext, PaginationOptions } from '../../types';
 
-interface DeploymentResolve {
-  url: string;
-  target: string;
+interface DeploymentV6
+  extends Pick<
+    Deployment,
+    'url' | 'target' | 'projectId' | 'ownerId' | 'meta'
+  > {
   createdAt: number;
-  projectId: string;
-  ownerId: string;
 }
 
 interface Deployments {
-  deployments: Deployment[];
+  deployments: DeploymentV6[];
   pagination: PaginationOptions;
 }
 
@@ -96,18 +97,18 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 2;
   }
 
-  let bad = argv['--bad'] || '';
-  let good = argv['--good'] || '';
+  let bad =
+    argv['--bad'] ||
+    (await prompt(output, `Specify a URL where the bug occurs:`));
+  let good =
+    argv['--good'] ||
+    (await prompt(output, `Specify a URL where the bug does not occur:`));
   let subpath = argv['--path'] || '';
   let run = argv['--run'] || '';
 
   if (run) {
     run = resolve(run);
   }
-
-  let orgPromise: Promise<Org | null | Error> | null = null;
-  let badDeploymentPromise: Promise<DeploymentResolve | Error> | null = null;
-  let goodDeploymentPromise: Promise<DeploymentResolve | Error> | null = null;
 
   const client = new Client({
     apiUrl,
@@ -117,87 +118,63 @@ export default async function main(ctx: NowContext): Promise<number> {
     output,
   });
 
-  if (!bad) {
-    const answer = await inquirer.prompt({
-      type: 'input',
-      name: 'bad',
-      message: `Specify a URL where the bug occurs:`,
-    });
-    bad = answer.bad;
+  if (!bad.startsWith('https://')) {
+    bad = `https://${bad}`;
   }
-
-  if (bad) {
-    if (!bad.startsWith('https://')) {
-      bad = `https://${bad}`;
-    }
-    const parsed = parse(bad);
-    if (!parsed.hostname) {
-      output.error('Invalid input: no hostname provided');
-      return 1;
-    }
-    bad = parsed.hostname;
-    if (typeof parsed.path === 'string' && parsed.path !== '/') {
-      if (subpath && subpath !== parsed.path) {
-        output.note(
-          `Ignoring subpath ${chalk.bold(
-            parsed.path
-          )} in favor of \`--path\` argument ${chalk.bold(subpath)}`
-        );
-      } else {
-        subpath = parsed.path;
-      }
-    }
-
-    badDeploymentPromise = getDeployment(client, bad).catch(err => err);
-    orgPromise = badDeploymentPromise
-      .then(d => {
-        return d instanceof Error ? null : getOrgById(client, d.ownerId);
-      })
-      .catch(err => err);
+  let parsed = parse(bad);
+  if (!parsed.hostname) {
+    output.error('Invalid input: no hostname provided');
+    return 1;
   }
-
-  if (!good) {
-    const answer = await inquirer.prompt({
-      type: 'input',
-      name: 'good',
-      message: `Specify a URL where the bug does not occur:`,
-    });
-    good = answer.good;
-  }
-
-  if (good) {
-    if (!good.startsWith('https://')) {
-      good = `https://${good}`;
-    }
-    const parsed = parse(good);
-    if (!parsed.hostname) {
-      output.error('Invalid input: no hostname provided');
-      return 1;
-    }
-    good = parsed.hostname;
-    if (
-      typeof parsed.path === 'string' &&
-      parsed.path !== '/' &&
-      subpath &&
-      subpath !== parsed.path
-    ) {
+  bad = parsed.hostname;
+  if (typeof parsed.path === 'string' && parsed.path !== '/') {
+    if (subpath && subpath !== parsed.path) {
       output.note(
         `Ignoring subpath ${chalk.bold(
           parsed.path
-        )} which does not match ${chalk.bold(subpath)}`
+        )} in favor of \`--path\` argument ${chalk.bold(subpath)}`
       );
+    } else {
+      subpath = parsed.path;
     }
-
-    goodDeploymentPromise = getDeployment(client, good).catch(err => err);
   }
 
+  const badDeploymentPromise = getDeployment(client, bad).catch(err => err);
+  const orgPromise = badDeploymentPromise
+    .then(d => {
+      return d instanceof Error ? null : getOrgById(client, d.ownerId);
+    })
+    .catch(err => err);
+
+  if (!good.startsWith('https://')) {
+    good = `https://${good}`;
+  }
+  parsed = parse(good);
+  if (!parsed.hostname) {
+    output.error('Invalid input: no hostname provided');
+    return 1;
+  }
+  good = parsed.hostname;
+  if (
+    typeof parsed.path === 'string' &&
+    parsed.path !== '/' &&
+    subpath &&
+    subpath !== parsed.path
+  ) {
+    output.note(
+      `Ignoring subpath ${chalk.bold(
+        parsed.path
+      )} which does not match ${chalk.bold(subpath)}`
+    );
+  }
+
+  const goodDeploymentPromise = getDeployment(client, good).catch(err => err);
+
   if (!subpath) {
-    const answer = await inquirer.prompt({
-      type: 'input',
-      name: 'subpath',
-      message: `Specify the URL subpath where the bug occurs:`,
-    });
-    subpath = answer.subpath;
+    subpath = await prompt(
+      output,
+      `Specify the URL subpath where the bug occurs:`
+    );
   }
 
   output.spinner('Retrieving deployments…');
@@ -244,13 +221,22 @@ export default async function main(ctx: NowContext): Promise<number> {
     return 1;
   }
 
+  if (badDeployment.target !== goodDeployment.target) {
+    output.error(
+      `Bad deployment target "${badDeployment.target}" does not match good deployment target "${goodDeployment.target}"`
+    );
+    return 1;
+  }
+
   // Fetch all the project's "READY" deployments with the pagination API
-  let deployments: Deployment[] = [];
+  let deployments: DeploymentV6[] = [];
   let next: number | undefined = badDeployment.createdAt + 1;
   do {
     const query = new URLSearchParams();
     query.set('projectId', projectId);
-    query.set('target', 'production');
+    if (badDeployment.target) {
+      query.set('target', badDeployment.target);
+    }
     query.set('limit', '100');
     query.set('state', 'READY');
     if (next) {
@@ -312,7 +298,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     const testUrl = `https://${deployment.url}${subpath}`;
     output.log(`${chalk.bold('Deployment URL:')} ${link(testUrl)}`);
 
-    output.log(`${chalk.bold('Date:')} ${formatDate(deployment.created)}`);
+    output.log(`${chalk.bold('Date:')} ${formatDate(deployment.createdAt)}`);
 
     const commit = getCommit(deployment);
     if (commit) {
@@ -385,7 +371,7 @@ export default async function main(ctx: NowContext): Promise<number> {
       `The first bad deployment is: ${link(`https://${lastBad.url}`)}`
     ),
     '',
-    `   ${chalk.bold('Date:')} ${formatDate(lastBad.created)}`,
+    `   ${chalk.bold('Date:')} ${formatDate(lastBad.createdAt)}`,
   ];
 
   const commit = getCommit(lastBad);
@@ -410,15 +396,15 @@ export default async function main(ctx: NowContext): Promise<number> {
 function getDeployment(
   client: Client,
   hostname: string
-): Promise<DeploymentResolve> {
+): Promise<DeploymentV6> {
   const query = new URLSearchParams();
   query.set('url', hostname);
   query.set('resolve', '1');
   query.set('noState', '1');
-  return client.fetch<DeploymentResolve>(`/v10/deployments/get?${query}`);
+  return client.fetch<DeploymentV6>(`/v10/deployments/get?${query}`);
 }
 
-function getCommit(deployment: Deployment) {
+function getCommit(deployment: DeploymentV6) {
   const sha =
     deployment.meta?.githubCommitSha ||
     deployment.meta?.gitlabCommitSha ||
@@ -429,4 +415,20 @@ function getCommit(deployment: Deployment) {
     deployment.meta?.gitlabCommitMessage ||
     deployment.meta?.bitbucketCommitMessage;
   return { sha, message };
+}
+
+async function prompt(output: Output, message: string): Promise<string> {
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { val } = await inquirer.prompt({
+      type: 'input',
+      name: 'val',
+      message,
+    });
+    if (val) {
+      return val;
+    } else {
+      output.error('A value must be specified');
+    }
+  }
 }
