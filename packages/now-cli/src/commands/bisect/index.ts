@@ -1,3 +1,4 @@
+import open from 'open';
 import boxen from 'boxen';
 import execa from 'execa';
 import plural from 'pluralize';
@@ -44,6 +45,7 @@ const help = () => {
     -d, --debug                Debug mode [off]
     -b, --bad                  Known bad URL
     -g, --good                 Known good URL
+    -o, --open                 Automatically open each URL in the browser
     -p, --path                 Subpath of the deployment URL to test
     -r, --run                  Test script to run for each deployment
 
@@ -78,10 +80,12 @@ export default async function main(ctx: NowContext): Promise<number> {
 
   try {
     argv = getArgs(ctx.argv.slice(2), {
-      '--good': String,
-      '-g': '--good',
       '--bad': String,
       '-b': '--bad',
+      '--good': String,
+      '-g': '--good',
+      '--open': Boolean,
+      '-o': '--open',
       '--path': String,
       '-p': '--path',
       '--run': String,
@@ -105,6 +109,7 @@ export default async function main(ctx: NowContext): Promise<number> {
     (await prompt(output, `Specify a URL where the bug does not occur:`));
   let subpath = argv['--path'] || '';
   let run = argv['--run'] || '';
+  const openEnabled = argv['--open'] || false;
 
   if (run) {
     run = resolve(run);
@@ -341,6 +346,9 @@ export default async function main(ctx: NowContext): Promise<number> {
         )}`
       );
     } else {
+      if (openEnabled) {
+        await open(testUrl);
+      }
       const answer = await inquirer.prompt({
         type: 'expand',
         name: 'action',

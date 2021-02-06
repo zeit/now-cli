@@ -149,6 +149,7 @@
     "node-fetch": "2.6.1",
     "npm-package-arg": "6.1.0",
     "nyc": "13.2.0",
+    "open": "7.4.0",
     "ora": "3.4.0",
     "pcre-to-regexp": "1.0.0",
     "pluralize": "7.0.0",
