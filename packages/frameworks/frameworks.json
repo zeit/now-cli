@@ -387,6 +387,33 @@
     }
   },
   {
+    "name": "Storybook",
+    "slug": "storybook",
+    "demo": "https://now-storybook-one.now.sh/",
+    "tagline": "Build bulletproof UI components faster.",
+    "description": "A static deployment of Storybook rendering your components.",
+    "website": "https://storybook.js.org/",
+    "detectors": {
+      "every": [
+        {
+          "path": "package.json",
+          "matchContent": "\"scripts\":\\s*{[^}]*build-storybook\\s*\".+?\"[^}]*}"
+        }
+      ]
+    },
+    "settings": {
+      "buildCommand": {
+        "placeholder": "npm run build-storybook"
+      },
+      "devCommand": {
+        "value": "npm run storybook"
+      },
+      "outputDirectory": {
+        "value": "storybook-static"
+      }
+    }
+  },
+  {
     "name": "Ionic Angular",
     "slug": "ionic-angular",
     "demo": "https://ionic-angular.now-examples.now.sh",
