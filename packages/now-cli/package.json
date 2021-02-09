@@ -1,6 +1,6 @@
 {
   "name": "vercel",
-  "version": "21.2.2",
+  "version": "21.2.3",
   "preferGlobal": true,
   "license": "Apache-2.0",
   "description": "The command-line interface for Vercel",
@@ -61,7 +61,7 @@
     "node": ">= 10"
   },
   "dependencies": {
-    "@vercel/build-utils": "2.8.1-canary.0",
+    "@vercel/build-utils": "2.9.0",
     "@vercel/go": "1.1.8",
     "@vercel/node": "1.9.1-canary.0",
     "@vercel/python": "1.2.5-canary.1",

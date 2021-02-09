@@ -4,28 +4,34 @@ import { NodeVersion } from '../types';
 import { NowBuildError } from '../errors';
 import debug from '../debug';
 
-const allOptions: NodeVersion[] = [
+const allOptions = [
+  { major: 14, range: '14.x', runtime: 'nodejs14.x' },
   { major: 12, range: '12.x', runtime: 'nodejs12.x' },
-  { major: 10, range: '10.x', runtime: 'nodejs10.x' },
+  {
+    major: 10,
+    range: '10.x',
+    runtime: 'nodejs10.x',
+    discontinueDate: new Date('2021-03-30'),
+  },
   {
     major: 8,
     range: '8.10.x',
     runtime: 'nodejs8.10',
     discontinueDate: new Date('2020-01-06'),
   },
-];
+] as const;
 
 const pleaseSet =
-  'Please set "engines": { "node": "' +
+  'Please change your Project Settings or set "engines": { "node": "' +
   getLatestNodeVersion().range +
-  '" } in your `package.json` file to upgrade to Node.js ' +
+  '" } in your `package.json` file to use Node.js ' +
   getLatestNodeVersion().major +
   '.';
 const upstreamProvider =
   'This change is the result of a decision made by an upstream infrastructure provider (AWS).' +
   '\nRead more: https://docs.aws.amazon.com/lambda/latest/dg/runtime-support-policy.html';
 
-export function getLatestNodeVersion(): NodeVersion {
+export function getLatestNodeVersion() {
   return allOptions[0];
 }
 
@@ -37,7 +43,7 @@ export async function getSupportedNodeVersion(
   engineRange?: string,
   isAuto?: boolean
 ): Promise<NodeVersion> {
-  let selection = getLatestNodeVersion();
+  let selection: NodeVersion = getLatestNodeVersion();
 
   if (engineRange) {
     const found =

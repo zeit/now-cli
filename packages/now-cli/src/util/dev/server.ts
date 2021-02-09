@@ -45,6 +45,7 @@ import _frameworks, { Framework } from '@vercel/frameworks';
 
 import cmd from '../output/cmd';
 import link from '../output/link';
+import sleep from '../sleep';
 import { Output } from '../output';
 import { relative } from '../path-helpers';
 import { getDistTag } from '../get-dist-tag';
@@ -2375,10 +2376,6 @@ function fileRemoved(
 function needsBlockingBuild(buildMatch: BuildMatch): boolean {
   const { builder } = buildMatch.builderWithPkg;
   return typeof builder.shouldServe !== 'function';
-}
-
-async function sleep(n: number) {
-  return new Promise(resolve => setTimeout(resolve, n));
 }
 
 async function checkForPort(
