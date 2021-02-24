@@ -12,6 +12,7 @@ import Now from '../../util';
 import { NowConfig } from '../dev/types';
 import { Org } from '../../types';
 import ua from '../ua';
+import getInspectUrl from '../deployment/get-inspect-url';
 import { linkFolderToProject } from '../projects/link';
 import { prependEmoji, emoji } from '../emoji';
 
@@ -21,22 +22,7 @@ function printInspectUrl(
   deployStamp: () => string,
   orgSlug: string
 ) {
-  const url = deploymentUrl.replace('https://', '');
-
-  // example urls:
-  // lucim-fyulaijvg.now.sh
-  // s-66p6vb23x.n8.io (custom domain suffix)
-  const [sub, ...p] = url.split('.');
-  const apex = p.join('.');
-
-  const q = sub.split('-');
-  const deploymentShortId = q.pop();
-  const projectName = q.join('-');
-
-  const inspectUrl = `https://vercel.com/${orgSlug}/${projectName}/${deploymentShortId}${
-    apex !== 'now.sh' && apex !== 'vercel.app' ? `/${apex}` : ''
-  }`;
-
+  const inspectUrl = getInspectUrl(deploymentUrl, orgSlug);
   output.print(
     prependEmoji(
       `Inspect: ${chalk.bold(inspectUrl)} ${deployStamp()}`,

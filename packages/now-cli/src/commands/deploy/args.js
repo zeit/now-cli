@@ -14,22 +14,23 @@ export const help = () => `
       )}
       dev                              Start a local development server
       env                              Manages the Environment Variables for your current Project
-      init                 [example]   Initialize an example project
+      help                 [cmd]       Displays complete help for [cmd]
       ls | list            [app]       Lists deployments
+      init                 [example]   Initialize an example project
       inspect              [id]        Displays information related to a deployment
       login                [email]     Logs into your account or creates a new one
       logout                           Logs out of your account
       switch               [scope]     Switches between teams and your personal account
-      help                 [cmd]       Displays complete help for [cmd]
 
     ${chalk.dim('Advanced')}
 
-      rm | remove          [id]        Removes a deployment
-      domains              [name]      Manages your domain names
-      dns                  [name]      Manages your DNS records
+      bisect                           Use binary search to find the deployment that introduced a bug
       certs                [cmd]       Manages your SSL certificates
-      secrets              [name]      Manages your global Secrets, for use in Environment Variables
+      dns                  [name]      Manages your DNS records
+      domains              [name]      Manages your domain names
       logs                 [url]       Displays the logs for a deployment
+      rm | remove          [id]        Removes a deployment
+      secrets              [name]      Manages your global Secrets, for use in Environment Variables
       teams                            Manages your teams
       whoami                           Shows the username of the currently logged in user
 
