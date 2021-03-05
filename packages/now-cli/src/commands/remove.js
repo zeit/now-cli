@@ -38,7 +38,7 @@ const help = () => {
     'TOKEN'
   )}        Login token
     -y, --yes                      Skip confirmation
-    -s, --safe                     Skip deployments with an active alias
+    -s, --safe                     Skip finished deployments with an active alias
     -S, --scope                    Set a custom scope
 
   ${chalk.dim('Examples:')}
@@ -202,6 +202,10 @@ export default async function main(ctx) {
   }
 
   deployments = deployments.filter((match, i) => {
+    if (argv.safe && match.state !== 'READY' || match.state !== 'ERROR') {
+      return false;
+    }
+
     if (argv.safe && aliases[i].length > 0) {
       return false;
     }
