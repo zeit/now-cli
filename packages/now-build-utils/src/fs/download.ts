@@ -15,7 +15,7 @@ export function isSymbolicLink(mode: number): boolean {
   return (mode & S_IFMT) === S_IFLNK;
 }
 
-async function downloadFile(file: File, fsPath: string): Promise<FileFsRef> {
+async function downloadFile(file: File | FileFsRef, fsPath: string): Promise<FileFsRef> {
   const { mode } = file;
   if (mode && isSymbolicLink(mode) && file.type === 'FileFsRef') {
     const [target] = await Promise.all([
@@ -25,7 +25,7 @@ async function downloadFile(file: File, fsPath: string): Promise<FileFsRef> {
     await symlink(target, fsPath);
     return FileFsRef.fromFsPath({ mode, fsPath });
   } else {
-    const stream = file.toStream();
+    const stream = file instanceof FileFsRef ? await file.toStreamAsync() : file.toStream();
     return FileFsRef.fromStream({ mode, stream, fsPath });
   }
 }
