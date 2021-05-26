@@ -27,6 +27,7 @@ export type Source = {
   headers?: { [name: string]: string };
   methods?: string[];
   continue?: boolean;
+  override?: boolean;
   check?: boolean;
   important?: boolean;
   status?: number;

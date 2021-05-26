@@ -104,6 +104,9 @@ export const routesSchema = {
           continue: {
             type: 'boolean',
           },
+          override: {
+            type: 'boolean',
+          },
           check: {
             type: 'boolean',
           },

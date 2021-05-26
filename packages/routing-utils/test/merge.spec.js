@@ -419,3 +419,50 @@ test('mergeRoutes ensure `handle: error` comes last', () => {
   ];
   deepStrictEqual(actual, expected);
 });
+
+test('mergeRoutes ensure beforeFiles comes after redirects', () => {
+  const userRoutes = [];
+  const builds = [
+    {
+      use: '@vercel/next',
+      entrypoint: 'package.json',
+      routes: [
+        {
+          src: '^/home$',
+          status: 301,
+          headers: {
+            Location: '/',
+          },
+        },
+        {
+          src: '^/hello$',
+          dest: '/somewhere',
+          continue: true,
+          override: true,
+        },
+        {
+          handle: 'filesystem',
+        },
+        {
+          src: '^/404$',
+          dest: '/404',
+          status: 404,
+          check: true,
+        },
+      ],
+    },
+  ];
+  const actual = mergeRoutes({ userRoutes, builds });
+  const expected = [
+    { src: '^/home$', status: 301, headers: { Location: '/' } },
+    {
+      src: '^/hello$',
+      dest: '/somewhere',
+      continue: true,
+      override: true,
+    },
+    { handle: 'filesystem' },
+    { src: '^/404$', dest: '/404', status: 404, check: true },
+  ];
+  deepStrictEqual(actual, expected);
+});

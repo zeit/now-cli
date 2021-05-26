@@ -39,7 +39,7 @@ function getCheckAndContinue(
       );
     } else if (route.check) {
       checks.push(route);
-    } else if (route.continue) {
+    } else if (route.continue && !route.override) {
       continues.push(route);
     } else {
       others.push(route);
