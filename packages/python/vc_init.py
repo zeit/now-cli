@@ -82,14 +82,27 @@ elif 'app' in __vc_variables:
         not inspect.iscoroutinefunction(__vc_module.app.__call__)
     ):
         print('using Web Server Gateway Interface (WSGI)')
+        from io import BytesIO
         from urllib.parse import urlparse
-        from werkzeug._compat import BytesIO
-        from werkzeug._compat import string_types
-        from werkzeug._compat import to_bytes
-        from werkzeug._compat import wsgi_encoding_dance
         from werkzeug.datastructures import Headers
         from werkzeug.wrappers import Response
 
+        string_types = (str,)
+
+        def to_bytes(x, charset=sys.getdefaultencoding(), errors="strict"):
+            if x is None:
+                return None
+            if isinstance(x, (bytes, bytearray, memoryview)):
+                return bytes(x)
+            if isinstance(x, str):
+                return x.encode(charset, errors)
+            raise TypeError("Expected bytes")
+
+        def wsgi_encoding_dance(s, charset="utf-8", errors="replace"):
+            if isinstance(s, str):
+                s = s.encode(charset)
+            return s.decode("latin1", errors)
+        
         def vc_handler(event, context):
             payload = json.loads(event['body'])
 

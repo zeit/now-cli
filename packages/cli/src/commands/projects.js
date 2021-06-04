@@ -187,25 +187,22 @@ async function run({ client, contextName }) {
 
     const name = args[0];
 
-    // Check the existence of the project
-    try {
-      await client.fetch(`/projects/info/${e(name)}`);
-    } catch (err) {
-      if (err.status === 404) {
-        console.error(error('No such project exists'));
-        return exit(1);
-      }
-    }
-
     const yes = await readConfirmation(name);
     if (!yes) {
       console.error(error('User abort'));
       return exit(0);
     }
 
-    await client.fetch(`/v2/projects/${name}`, {
-      method: 'DELETE',
-    });
+    try {
+      await client.fetch(`/v2/projects/${e(name)}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      if (err.status === 404) {
+        console.error(error('No such project exists'));
+        return exit(1);
+      }
+    }
     const elapsed = ms(new Date() - start);
     console.log(
       `${chalk.cyan('> Success!')} Project ${chalk.bold(

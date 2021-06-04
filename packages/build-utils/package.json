@@ -1,6 +1,6 @@
 {
   "name": "@vercel/build-utils",
-  "version": "2.11.0",
+  "version": "2.11.1-canary.0",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.js",
@@ -29,7 +29,7 @@
     "@types/node-fetch": "^2.1.6",
     "@types/semver": "6.0.0",
     "@types/yazl": "^2.4.1",
-    "@vercel/frameworks": "0.4.0",
+    "@vercel/frameworks": "0.4.1-canary.0",
     "@vercel/ncc": "0.24.0",
     "aggregate-error": "3.0.1",
     "async-retry": "1.2.3",
